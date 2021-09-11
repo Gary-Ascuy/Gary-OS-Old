@@ -4,6 +4,13 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  width: 100vw;
+  height: 100vh;
+}
+
+body {
+  background: #020305 url(/assets/os/wallpapers/4-1.jpg) no-repeat center center fixed;
+  background-size: cover;
 }
 
 a {
