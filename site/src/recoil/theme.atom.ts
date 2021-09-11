@@ -5,7 +5,7 @@ export enum Theme {
   Light = 'light',
 }
 
-export const theme = atom({
+export const themeState = atom({
   key: 'theme',
   default: Theme.Dark,
 })

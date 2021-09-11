@@ -1,7 +1,7 @@
 import { atom } from 'recoil'
 
-export const theme = atom({
-  key: 'theme',
+export const osState = atom({
+  key: 'os',
   default: {
     name: 'Gary OS',
     version: '0.0.1',
