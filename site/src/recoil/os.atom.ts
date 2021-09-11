@@ -1,6 +1,12 @@
 import { atom } from 'recoil'
 
-export const osState = atom({
+export interface OsState {
+  name: string
+  version: string
+  github: string
+}
+
+export const osState = atom<OsState>({
   key: 'os',
   default: {
     name: 'Gary OS',

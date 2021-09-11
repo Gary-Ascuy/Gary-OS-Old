@@ -1,11 +1,11 @@
 import { atom } from 'recoil'
 
-export enum Theme {
+export enum ThemeState {
   Dark = 'dark',
   Light = 'light',
 }
 
-export const themeState = atom({
+export const themeState = atom<ThemeState>({
   key: 'theme',
-  default: Theme.Dark,
+  default: ThemeState.Dark,
 })
