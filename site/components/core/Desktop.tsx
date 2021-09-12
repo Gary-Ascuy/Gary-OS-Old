@@ -4,7 +4,7 @@ import Window from '../window/Window'
 
 import { DockOption } from '../../src/core/DockOption'
 import { MenuOption } from '../../src/core/MenuOption'
-
+import { getProcess, spawn } from '../../src/os/Process'
 
 const menus: MenuOption[] = [
   { id: 'home', name: 'gOS', items: [] },
