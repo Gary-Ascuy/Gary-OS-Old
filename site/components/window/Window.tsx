@@ -2,15 +2,18 @@ import WindowHeader from './WindowHeader'
 import style from './Window.module.css'
 import { useState } from 'react'
 
-export default function BasicWindow(): JSX.Element {
-  const [value, setValue] = useState('gary @Garys-MacBook-Pro site % ')
+export interface WindowProps {
+  title?: string
+  children?: JSX.Element | JSX.Element[]
+}
 
+export default function WindowProps({ title, children }: WindowProps): JSX.Element {
   return (
     <section className={style.window}>
-      <WindowHeader></WindowHeader>
+      <WindowHeader title={title}></WindowHeader>
+
       <section className={style.body}>
-        <textarea className={style.input} value={value} onChange={(event) => setValue(event.target.value)}>
-        </textarea>
+        {children}
       </section>
     </section>
   )

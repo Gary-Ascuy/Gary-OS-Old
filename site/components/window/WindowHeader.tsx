@@ -1,6 +1,10 @@
 import style from './WindowHeader.module.css'
 
-export default function WindowHeader(): JSX.Element {
+export interface WindowHeaderProps {
+  title?: string
+}
+
+export default function WindowHeader({ title }: WindowHeaderProps): JSX.Element {
   return (
     <header className={style.header}>
       <section className={style.leftActions}>
@@ -47,9 +51,9 @@ export default function WindowHeader(): JSX.Element {
         </button>
       </section>
 
-      <section className={style.title} >gary -- -zsh -- 80x24</section>
+      <section className={style.title}>{title}</section>
 
-      <section className={style.rightActions} ></section>
+      <section className={style.rightActions}></section>
     </header>
   )
 }

@@ -5,6 +5,7 @@ import Window from '../window/Window'
 import { DockOption } from '../../src/core/DockOption'
 import { MenuOption } from '../../src/core/MenuOption'
 import { getProcess, spawn } from '../../src/os/Process'
+import Terminal from '../apps/terminal/Terminal'
 
 const menus: MenuOption[] = [
   { id: 'home', name: 'gOS', items: [] },
@@ -27,7 +28,7 @@ export function Desktop(): JSX.Element {
     <>
       <Menu items={menus}></Menu>
       <section>
-        <Window></Window>
+        <Terminal></Terminal>
       </section>
       <Dock items={docks}></Dock>
     </>
