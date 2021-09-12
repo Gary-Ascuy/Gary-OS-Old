@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  gos:
+    image: garyascuy/gos:0.0.1
+    build:
+      context: ../../site
+      dockerfile: ../tools/docker/Dockerfile
+    ports:
+      - 3666:3666
+    env_file:
+      - .env.production
