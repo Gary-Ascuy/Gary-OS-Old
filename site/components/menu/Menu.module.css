@@ -1,0 +1,26 @@
+.menu {
+  background: red;
+  display: flex;
+  gap: 2px;
+  padding: 0px 10px;
+
+  position: fixed;
+  width: 100vw;
+  top: 0px;
+  left: 0px;
+
+  cursor: default;
+
+  /* COLOR */
+  --app-color-light-hsl: 240, 3%, 11%;
+  --app-color-light-contrast: hsl(240, 24%, 100%);
+
+  font-size: 0.8rem;
+  /* background-color: hsla(var(--app-color-light-hsl), 0.5); */
+  background-color: #0e2b5994;
+  color: var(--app-color-light-contrast);
+}
+
+.section {
+  display: inline-block;
+}
