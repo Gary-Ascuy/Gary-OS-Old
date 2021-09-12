@@ -30,3 +30,5 @@ export interface TerminalApplication extends BaseApplication {
 export interface WindowApplication extends BaseApplication {
   view: JSX.Element
 }
+
+export type ApplicationOptions = WindowApplication | TerminalApplication

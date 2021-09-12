@@ -1,5 +1,5 @@
 import { ProcessOptions } from '../options/ProcessOptions'
-import { EnvironmentVariables } from './EnvironmentVariables';
+import { EnvironmentVariables } from './EnvironmentVariables'
 
 export interface Process {
   pid: string

@@ -3,8 +3,9 @@ import { EventEmitter } from 'events'
 
 import { KernelOptions } from './options/KernelOptions'
 import { ApplicationOptions } from './options/ApplicationOptions'
-import { Process } from './models/Process'
 import { ProcessOptions } from './options/ProcessOptions'
+
+import { Process } from './models/Process'
 import { Application } from './models/Application'
 
 const defaultOptions: KernelOptions = { env: {} }
@@ -24,7 +25,7 @@ export default class Kernel extends EventEmitter {
 
   // TODO: Validate auth/certs to install applications
   async install(options: ApplicationOptions): Promise<void> {
-    const app: Application = { aid: uuid(), options }
+    const app: Application = { aid: uuid(), type: options.type, options }
     this.applications[app.aid] = app
   }
 
