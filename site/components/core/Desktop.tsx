@@ -1,7 +1,10 @@
-import { DockOption } from '../../src/core/DockOption'
-import { MenuOption } from '../../src/core/MenuOption'
 import Dock from '../dock/Dock'
 import Menu from '../menu/Menu'
+import Window from '../window/Window'
+
+import { DockOption } from '../../src/core/DockOption'
+import { MenuOption } from '../../src/core/MenuOption'
+
 
 const menus: MenuOption[] = [
   { id: 'home', name: 'gOS', items: [] },
@@ -23,6 +26,9 @@ export function Desktop(): JSX.Element {
   return (
     <>
       <Menu items={menus}></Menu>
+      <section>
+        <Window></Window>
+      </section>
       <Dock items={docks}></Dock>
     </>
   )

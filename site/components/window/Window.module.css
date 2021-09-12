@@ -1,0 +1,47 @@
+.window {
+  position: absolute;
+  top: 100px;
+  left: 100px;
+
+  width: 550px;
+  height: 300px;
+
+  display: flex;
+  flex-direction: column;
+
+  /* STYLE */
+  --app-color-dark-hsl: 240, 24%, 100%;
+  --app-color-light-hsl: 240, 3%, 11%;
+  --app-color-light: hsl(240, 3%, 11%);
+
+  border-radius: .75rem;
+  box-shadow: inset 0 0 0 .9px hsla(var(--app-color-dark-hsl), .3), 0 0 0 1px hsla(var(--app-color-light-hsl), .5);
+  background-color: var(--app-color-light);
+}
+
+.body {
+  flex: auto;
+  padding: 2px 8px;
+  color: white;
+  /* background: #1e1e1e; */
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.input {
+  background: transparent;
+  border: none !important;
+  width: 100%;
+  height: 100%;
+
+  color: white;
+  /* background: #1e1e1e; */
+  font-family: monospace;
+  font-size: 0.9rem;
+  resize: none;
+  outline: none;
+}
+
+.input:active {
+  border: 1px solid red;
+}

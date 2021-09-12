@@ -4,7 +4,7 @@ import format from 'date-fns/format'
 import style from './MenuItem.module.css'
 
 const TimeInterval = 60 * 1000
-const TimeFormat = 'iii dd LLL KK:mm aa'
+const TimeFormat = 'iii dd LLL hh:mm aa'
 
 export default function Clock(): JSX.Element {
   const [time, setTime] = useState(new Date())
