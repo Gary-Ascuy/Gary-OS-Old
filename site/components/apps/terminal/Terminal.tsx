@@ -21,6 +21,8 @@ export default function Terminal() {
     setLines([...lines, ...newLines])
   }, [lines])
 
+  const isNewCommand = (value: string) => /\r?\n$/.test(value) && !/\\\r?\n$/.test(value)
+
   return (
     <Window title='gary -- -zsh -- 80x24'>
       <div style={{ position: 'relative' }}>
@@ -35,8 +37,7 @@ export default function Terminal() {
         <textarea rows={10} className={style.input} value={value} onChange={(event) => {
           const { value } = event.target
 
-
-          if (/\n/.test(value)) {
+          if (isNewCommand(value)) {
             if (/clear/.test(value)) {
               setLines([])
               setValue('')
