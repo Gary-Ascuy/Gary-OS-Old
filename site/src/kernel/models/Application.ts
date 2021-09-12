@@ -1,7 +1,8 @@
-import { ApplicationOptions } from '../options/ApplicationOptions'
+import { WindowApplication, TerminalApplication, ApplicationType } from '../options/ApplicationOptions'
 
 export interface Application {
   aid: string
+  type: ApplicationType
 
-  options: ApplicationOptions
+  options: WindowApplication | TerminalApplication
 }
