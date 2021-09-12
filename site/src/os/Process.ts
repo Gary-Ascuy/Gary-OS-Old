@@ -37,6 +37,11 @@ export function getProcess(localEnvs: EnvironmentVariables) {
     uptime: () => (0.0 + new Date().getTime() - process.__starttime) / 1000.0,
     exit: (code: number) => console.log(code),
   }
+
+  // Streams Implementation
+  // process.stdout
+  // process.stdin
+  // process.stderr
   return process
 }
 
