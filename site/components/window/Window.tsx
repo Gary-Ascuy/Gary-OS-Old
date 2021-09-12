@@ -1,15 +1,23 @@
-import WindowHeader from './WindowHeader'
-import style from './Window.module.css'
-import { useState } from 'react'
+import { useMemo } from 'react'
 
-export interface WindowProps {
-  title?: string
+import WindowHeader from './WindowHeader'
+
+import { WindowOption, Box } from '../../src/core/WindowOption'
+import style from './Window.module.css'
+
+export interface WindowProps extends WindowOption {
   children?: JSX.Element | JSX.Element[]
 }
 
-export default function WindowProps({ title, children }: WindowProps): JSX.Element {
+export function getDefafaultBox(): Box {
+  return { x: 100, y: 100, width: 750, height: 400 }
+}
+
+export default function WindowProps({ title, box, children }: WindowProps): JSX.Element {
+  const { x, y, width, height } = useMemo(() => box || getDefafaultBox(), [box])
+
   return (
-    <section className={style.window}>
+    <section style={{ left: y, top: y, width, height }} className={style.window}>
       <WindowHeader title={title}></WindowHeader>
 
       <section className={style.body}>

@@ -29,6 +29,7 @@ export function Desktop(): JSX.Element {
       <Menu items={menus}></Menu>
       <section>
         <Terminal></Terminal>
+        <Terminal title='docker' box={{ x: 300, y: 400, width: 650, height: 300 }}></Terminal>
       </section>
       <Dock items={docks}></Dock>
     </>

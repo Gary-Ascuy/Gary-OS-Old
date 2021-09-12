@@ -1,10 +1,11 @@
-import { useCallback, useState } from 'react'
-import Window from '../../window/Window';
+import { createRef, useCallback, useEffect, useRef, useState } from 'react'
+import { WindowOption } from '../../../src/core/WindowOption'
+import Window from '../../window/Window'
 
 import style from './Terminal.module.css'
 
 // { process }: TerminalProps extends AppicationProps
-export default function Terminal() {
+export default function Terminal({ title, box }: WindowOption) {
   const [value, setValue] = useState('')
   const [PS1, setPS1] = useState('gary @Gary-MacBook-Pro site %')
   const [lines, setLines] = useState([
@@ -17,6 +18,14 @@ export default function Terminal() {
     'gary @Gary-MacBook-Pro site %',
   ])
 
+  const ps1 = useRef<HTMLDivElement>(null)
+  const [textIndent, setTextIndent] = useState('')
+
+  useEffect(() => {
+    const width = ps1?.current?.offsetWidth ?? 0
+    setTextIndent(`${width + 5}px`)
+  }, [ps1])
+
   const addLines = useCallback((...newLines: string[]) => {
     setLines([...lines, ...newLines])
   }, [lines])
@@ -24,7 +33,7 @@ export default function Terminal() {
   const isNewCommand = (value: string) => /\r?\n$/.test(value) && !/\\\r?\n$/.test(value)
 
   return (
-    <Window title='gary -- -zsh -- 80x24'>
+    <Window title={title || 'gary -- -zsh -- 80x24'} box={box}>
       <div style={{ position: 'relative' }}>
         <div className={style.output}>
           {lines.map((line: string, index: number) => <div key={index}>{line}</div>)}
@@ -32,28 +41,42 @@ export default function Terminal() {
       </div>
 
       <div style={{ position: 'relative' }}>
-        <span className={style.ps1}>{PS1}</span>
+        <div className={style.ps1} ref={ps1}>{PS1}</div>
 
-        <textarea rows={10} className={style.input} value={value} onChange={(event) => {
-          const { value } = event.target
+        <textarea rows={10} className={style.input} value={value}
+          style={{ textIndent }}
+          onChange={(event) => {
+            const { value } = event.target
 
-          if (isNewCommand(value)) {
-            if (/clear/.test(value)) {
-              setLines([])
+            if (isNewCommand(value)) {
+              if (/clear/.test(value)) {
+                setLines([])
+                setValue('')
+                return
+              }
+
+              if (/^PS1=/i.test(value)) {
+                const [_, name] = value.trim().split('=')
+                const val = `${name.trim()} %`
+
+                setPS1(val)
+                setValue('')
+
+                const width = ps1?.current?.offsetWidth ?? 0
+                setTextIndent(`${(val.length / PS1.length * width) + 5}px`)
+                return
+              }
+
+              if (!value.trim()) {
+                addLines(PS1)
+                return
+              }
+
+              const [command] = value.split(' ')
+              addLines(`${PS1} ${value}`, `zsh: command not found: ${command}`)
               setValue('')
-              return
-            }
-
-            if (!value.trim()) {
-              addLines(PS1)
-              return
-            }
-
-            const [command] = value.split(' ')
-            addLines(`${PS1} ${value}`, `zsh: command not found: ${command}`)
-            setValue('')
-          } else setValue(value)
-        }}>
+            } else setValue(value)
+          }}>
         </textarea>
       </div>
     </Window >
