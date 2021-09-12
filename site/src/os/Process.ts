@@ -42,6 +42,34 @@ export function getProcess(localEnvs: EnvironmentVariables) {
   // process.stdout
   // process.stdin
   // process.stderr
+  // isRaw: true,
+  // isTTY: true
+  // name: gnode, argv0: gnode, execArgv: []
+  // PID HOW???
+  // ppid
+
+  // stdout: [Getter],
+  // stdin: [Getter],
+  // stderr: [Getter],
+  // abort: [Function: abort],
+  // umask: [Function: wrappedUmask],
+  // chdir: [Function (anonymous)],
+  // cwd: [Function: wrappedCwd],
+
+  // reallyExit: [Function: reallyExit],
+  // _kill: [Function: _kill],
+  // cpuUsage: [Function: cpuUsage],
+  // resourceUsage: [Function: resourceUsage],
+  // memoryUsage: [Function: memoryUsage] { rss: [Function: rss] },
+  // kill: [Function: kill],
+  // exit: [Function: exit],
+  // openStdin: [Function (anonymous)],
+
+  // domain: [Getter/Setter],
+
+  /// ACCESO A SERVICIOS ( API, DISTRIBUTED OOS )
+
+
   return process
 }
 
