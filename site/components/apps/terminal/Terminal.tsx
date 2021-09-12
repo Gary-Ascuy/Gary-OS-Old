@@ -1,5 +1,7 @@
-import { createRef, useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { WindowOption } from '../../../src/core/WindowOption'
+import { useKernel } from '../../../src/kernel/Kernel'
+import { ProcessOptions } from '../../../src/kernel/options/ProcessOptions'
 import Window from '../../window/Window'
 
 import style from './Terminal.module.css'
@@ -20,6 +22,7 @@ export default function Terminal({ title, box }: WindowOption) {
 
   const ps1 = useRef<HTMLDivElement>(null)
   const [textIndent, setTextIndent] = useState('')
+  const { open } = useKernel()
 
   useEffect(() => {
     const width = ps1?.current?.offsetWidth ?? 0
@@ -75,6 +78,8 @@ export default function Terminal({ title, box }: WindowOption) {
               const [command] = value.split(' ')
               addLines(`${PS1} ${value}`, `zsh: command not found: ${command}`)
               setValue('')
+
+              open({ env: {} } as ProcessOptions).then((a) => console.log(a))
             } else setValue(value)
           }}>
         </textarea>
