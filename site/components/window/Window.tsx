@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import WindowHeader from './WindowHeader'
 
-import { WindowOption, Box } from '../../src/core/WindowOption'
+import { WindowOption, Box } from '../../src/view/WindowOption'
 import style from './Window.module.css'
 
 export interface WindowProps extends WindowOption {

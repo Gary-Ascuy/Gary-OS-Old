@@ -1,4 +1,4 @@
-import { MenuOption } from "../../src/core/MenuOption"
+import { MenuOption } from "../../src/view/MenuOption"
 import MenuItem from "./MenuItem"
 
 import style from './Menu.module.css'

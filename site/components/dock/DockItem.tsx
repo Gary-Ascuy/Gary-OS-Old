@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 
-import { DockOption } from "../../src/core/DockOption";
+import { DockOption } from "../../src/view/DockOption";
 import style from './DockItem.module.css'
 
 export interface DockItemProps extends DockOption {

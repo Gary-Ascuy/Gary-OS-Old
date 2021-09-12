@@ -1,4 +1,4 @@
-import { DockOption } from "../../src/core/DockOption"
+import { DockOption } from "../../src/view/DockOption"
 import DockItem from "./DockItem"
 
 import style from './Dock.module.css'

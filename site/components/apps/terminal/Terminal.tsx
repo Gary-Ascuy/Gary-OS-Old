@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { WindowOption } from '../../../src/core/WindowOption'
+import { WindowOption } from '../../../src/view/WindowOption'
 import { useKernel } from '../../../src/kernel/Kernel'
 import { ProcessOptions } from '../../../src/kernel/options/ProcessOptions'
 import Window from '../../window/Window'

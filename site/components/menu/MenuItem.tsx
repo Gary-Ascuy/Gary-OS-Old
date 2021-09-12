@@ -1,4 +1,4 @@
-import { MenuOption } from '../../src/core/MenuOption'
+import { MenuOption } from '../../src/view/MenuOption'
 import style from './MenuItem.module.css'
 
 export interface MenuItemProps extends MenuOption { }

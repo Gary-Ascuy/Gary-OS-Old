@@ -2,9 +2,8 @@ import Dock from '../dock/Dock'
 import Menu from '../menu/Menu'
 import Window from '../window/Window'
 
-import { DockOption } from '../../src/core/DockOption'
-import { MenuOption } from '../../src/core/MenuOption'
-import { getProcess, spawn } from '../../src/os/Process'
+import { DockOption } from '../../src/view/DockOption'
+import { MenuOption } from '../../src/view/MenuOption'
 import Terminal from '../apps/terminal/Terminal'
 
 const menus: MenuOption[] = [
