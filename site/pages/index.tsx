@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
+import { Desktop } from '../components/core/Desktop'
 
 import { userState } from '../src/recoil/user.atom'
 
@@ -21,12 +22,8 @@ const Home: NextPage = () => {
       </Head>
 
       <main>
-        <pre style={{ color: 'white', fontSize: '15px', padding: '5px 20px' }}>{JSON.stringify(user, null, 2)}</pre>
+        <Desktop></Desktop>
       </main>
-
-      <footer style={{ borderTop: '1px solid gray', margin: '0px 20px', padding: '10px', color: 'white', fontSize: '15px', textAlign: 'center' }}>
-        Gary Ascuy &lt;gary.ascuy@gmail.com&gt;
-      </footer>
     </div>
   )
 }
