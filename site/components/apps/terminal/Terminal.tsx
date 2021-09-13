@@ -5,10 +5,11 @@ import { ProcessOptions } from '../../../src/kernel/options/ProcessOptions'
 import Window from '../../window/Window'
 
 import style from './Terminal.module.css'
+import { parse } from '../../../src/kernel/Process'
 
 // { process }: TerminalProps extends AppicationProps
 export default function Terminal({ title, box }: WindowOption) {
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState('echo "Gary Is Coming!!"')
   const [PS1, setPS1] = useState('gary @Gary-MacBook-Pro site %')
   const [lines, setLines] = useState([
     'gary @Gary-MacBook-Pro site % docker run -it -p 80:80 nginx',
@@ -33,7 +34,13 @@ export default function Terminal({ title, box }: WindowOption) {
     setLines([...lines, ...newLines])
   }, [lines])
 
-  const isNewCommand = (value: string) => /\r?\n$/.test(value) && !/\\\r?\n$/.test(value)
+  const getStandardOutput = useCallback(() => {
+    return new WritableStream({
+      write: (chunck: string) => addLines(chunck)
+    })
+  }, [addLines])
+
+  const isNewCommand = (value: string) => /\r?\n/.test(value) && !/\\\r?\n$/.test(value)
 
   return (
     <Window title={title || 'gary -- -zsh -- 80x24'} box={box}>
@@ -76,10 +83,15 @@ export default function Terminal({ title, box }: WindowOption) {
               }
 
               const [command] = value.split(' ')
-              addLines(`${PS1} ${value}`, `zsh: command not found: ${command}`)
+              // addLines(`${PS1} ${value}`, `zsh: command not found: ${command}`)
+
+              const [options] = parse(value)
+              // addLines(PS1)
+              options.stdout = getStandardOutput()
+              options.stderr = getStandardOutput()
               setValue('')
 
-              open({ env: {} } as ProcessOptions)
+              open(options)
                 .then((a) => console.log(a))
                 .catch(e => console.log(e))
             } else setValue(value)

@@ -55,7 +55,7 @@ export const OPERATORS = [...PIPE_OPERATORS, '>', '>>', '<', '<<']
 export function parse(lines: string): ProcessOptions[] {
   if (!lines || !lines.trim()) throw new Error('Invalid Command Line')
 
-  const argvs = stringArgv(lines.replace(/\\\r?\n/g, ' '))
+  const argvs = stringArgv(lines.replace(/\\\r?\n/g, ' ').replace(/\r?\n/g, ''))
   const pipes: Array<string[]> = []
 
   let cache = []

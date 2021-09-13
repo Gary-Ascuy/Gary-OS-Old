@@ -10,7 +10,7 @@ const Home: NextPage = () => {
   const [user, setUser] = useRecoilState(userState)
 
   useEffect(() => {
-    console.log(user)
+    // console.log(user)
   }, [user])
 
   return (

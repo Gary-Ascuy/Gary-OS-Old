@@ -42,8 +42,44 @@ export default class Kernel extends EventEmitter {
   }
 
   async load(): Promise<void> {
-    this.emit('load', 0)
-    this.emit('load', 100)
+    this.emit('loading', 0)
+
+    const echo: TerminalApplication = {
+      type: ApplicationType.Terminal,
+      metadata: {
+        identifier: 'echo',
+        name: 'Echo',
+        version: '1.0.0',
+        authors: [{ name: 'Gary Ascuy', email: 'gary.ascuy@gmail.com' }],
+      },
+      main: async (context: ApplicationContext) => {
+        console.log('============= ECHO =============')
+        const { process } = context
+        console.log(...process.options.arguments)
+        console.log('Env Variables', process.env)
+        const writer = context.process.options.stdout?.getWriter()
+
+        // writer?.write(new Date().toISOString() + process.options.arguments.join(' '))
+        // await new Promise((resolve) => setTimeout(resolve, 2000))
+
+        // writer?.write(new Date().toISOString() + process.options.arguments.join(' '))
+        // await new Promise((resolve) => setTimeout(resolve, 1000))
+
+        // writer?.write(new Date().toISOString() + process.options.arguments.join(' '))
+        // await new Promise((resolve) => setTimeout(resolve, 500))
+
+        // writer?.write('that\'s all params !!!')
+
+        writer?.write(process.options.arguments.join(' '))
+
+        writer?.close()
+        return 0
+      }
+    }
+
+    this.install(echo)
+
+    this.emit('loading', 100)
   }
 
   async build(options: ApplicationOptions): Promise<Application> {
