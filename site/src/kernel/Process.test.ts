@@ -4,7 +4,7 @@ import Kernel from './Kernel'
 import { Application } from './models/Application'
 import { ProcessResponse } from './models/Process'
 import {
-  AppicationMainFunction, ApplicationMedatada, ApplicationType,
+  AppicationMainFunction, ApplicationMedatada, ApplicationOptions, ApplicationType,
   TerminalApplication, WindowApplication
 } from './options/ApplicationOptions'
 import { KernelOptions } from './options/KernelOptions'
@@ -20,13 +20,7 @@ export function buildApplicationMetadata(
   return { identifier, name, version, authors }
 }
 
-export function buildMainVoidFunction(
-  action: AppicationMainFunction<void> = async (context: any) => { console.log('test') },
-) {
-  return action
-}
-
-export function buildMainCodeFunction(code: number): AppicationMainFunction<number> {
+export function buildMainFunction(code: number): AppicationMainFunction<number> {
   return async (context: any) => code
 }
 
@@ -40,31 +34,47 @@ export function buildTerminalApplication(main: AppicationMainFunction<number>) {
   return application
 }
 
+export function wait(time: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, time))
+}
+
 export default describe('Process.ts', () => {
   describe('.open()', () => {
-    test('should execute and return success', async () => {
-      const kernel = await Kernel.getInstance(true)
-      const main = buildMainCodeFunction(ProcessResponse.SUCCESS)
-      const application = await kernel.build(buildTerminalApplication(main))
-      const options: ProcessOptions = { command: 'code', arguments: [], env: {} }
+    let kernel: Kernel
+    let application: Application
+    let terminal: TerminalApplication
+
+    beforeEach(async () => {
+      kernel = await Kernel.getInstance(true)
+
+      const main = buildMainFunction(ProcessResponse.SUCCESS)
+      application = await kernel.build(buildTerminalApplication(main))
+      terminal = application.options as TerminalApplication
 
       expect(kernel).toBeDefined()
       expect(application).toBeDefined()
-      expect(options).toBeDefined()
+    })
 
+    test('should execute and returns success', async () => {
+      const options: ProcessOptions = { command: 'code', arguments: [], env: {} }
       const code = await kernel.open(options, application)
       expect(code).toBe(ProcessResponse.SUCCESS)
     })
 
-    test('should execute and return success', async () => {
-      const kernel = await Kernel.getInstance(true)
-      const main = buildMainCodeFunction(ProcessResponse.ERROR)
-      const application = await kernel.build(buildTerminalApplication(main))
+    test('should execute and returns error', async () => {
       const options: ProcessOptions = { command: 'code', arguments: [], env: {} }
+      terminal.main = buildMainFunction(ProcessResponse.ERROR)
 
-      expect(kernel).toBeDefined()
-      expect(application).toBeDefined()
-      expect(options).toBeDefined()
+      const code = await kernel.open(options, application)
+      expect(code).toBe(ProcessResponse.ERROR)
+    })
+
+    test('should execute and returns error with async functions', async () => {
+      const options: ProcessOptions = { command: 'code', arguments: [], env: {} }
+      terminal.main = async (context: any) => {
+        await wait(20)
+        return ProcessResponse.ERROR
+      }
 
       const code = await kernel.open(options, application)
       expect(code).toBe(ProcessResponse.ERROR)
