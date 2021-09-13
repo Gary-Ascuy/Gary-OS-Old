@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid'
 import { EventEmitter } from 'events'
 
 import { KernelOptions } from './options/KernelOptions'
-import { ApplicationOptions, ApplicationType, TerminalApplication } from './options/ApplicationOptions'
+import { ApplicationContext, ApplicationOptions, ApplicationType, TerminalApplication } from './options/ApplicationOptions'
 import { ProcessOptions } from './options/ProcessOptions'
 
 import { Process, ProcessResponse } from './models/Process'
@@ -94,11 +94,10 @@ export default class Kernel extends EventEmitter {
     this.processes[pid] = process
     this.emit('open', process)
 
-    const context = { pid, kernel: Kernel.getInstance(), process }
-
+    const context: ApplicationContext = { pid, kernel: await Kernel.getInstance(), process }
     if (application.type === ApplicationType.Terminal) {
       const terminal: TerminalApplication = application.options as TerminalApplication
-      const code = await terminal.main(process)
+      const code = await terminal.main(context)
       return code
     }
 

@@ -1,13 +1,10 @@
-import React from 'react'
-
 import Kernel from './Kernel'
 import { Application } from './models/Application'
 import { ProcessResponse } from './models/Process'
 import {
-  AppicationMainFunction, ApplicationMedatada, ApplicationOptions, ApplicationType,
-  TerminalApplication, WindowApplication
+  AppicationMainFunction, ApplicationContext,
+  ApplicationMedatada, ApplicationType, TerminalApplication,
 } from './options/ApplicationOptions'
-import { KernelOptions } from './options/KernelOptions'
 import { ProcessOptions } from './options/ProcessOptions'
 
 export function buildApplicationMetadata(
@@ -20,11 +17,11 @@ export function buildApplicationMetadata(
   return { identifier, name, version, authors }
 }
 
-export function buildMainFunction(code: number): AppicationMainFunction<number> {
-  return async (context: any) => code
+export function buildMainFunction(code: number): AppicationMainFunction {
+  return async (context: ApplicationContext) => code
 }
 
-export function buildTerminalApplication(main: AppicationMainFunction<number>) {
+export function buildTerminalApplication(main: AppicationMainFunction) {
   const application: TerminalApplication = {
     type: ApplicationType.Terminal,
     metadata: buildApplicationMetadata(),

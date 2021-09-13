@@ -1,3 +1,6 @@
+import Kernel from "../Kernel"
+import { Process } from "../models/Process"
+
 export interface ApplicationAuthor {
   name: string
   email: string
@@ -25,10 +28,16 @@ export interface BaseApplication {
   metadata: ApplicationMedatada
 }
 
-export type AppicationMainFunction<T> = (context: any) => Promise<T>
+export interface ApplicationContext {
+  pid: string
+  process: Process
+  kernel: Kernel
+}
+
+export type AppicationMainFunction = (context: ApplicationContext) => Promise<number>
 
 export interface TerminalApplication extends BaseApplication {
-  main: AppicationMainFunction<number>
+  main: AppicationMainFunction
 }
 
 export interface WindowApplication extends BaseApplication {
