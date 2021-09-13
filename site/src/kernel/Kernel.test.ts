@@ -32,7 +32,7 @@ export default describe('Kernel.js', () => {
     })
 
     test('should create an instance with options using constructor', () => {
-      const options: KernelOptions = { env: {} }
+      const options: KernelOptions = { env: {}, alias: {} }
       const kernel = new Kernel(options)
 
       expect(kernel).toBeDefined()
@@ -230,6 +230,33 @@ export default describe('Kernel.js', () => {
     })
   })
 
+  describe('.registerAlias()', () => {
+    test('should register an alias', async () => {
+      const kernel = await Kernel.getInstance(true)
+
+      expect(Object.keys(kernel.Alias).length).toBe(0)
+
+      await kernel.registerAlias('code', 'com.microsoft.vscode')
+      expect(Object.keys(kernel.Alias).length).toBe(1)
+    })
+
+    test('should register more than one alias', async () => {
+      const kernel = await Kernel.getInstance(true)
+
+      console.log(kernel.Alias, Object.keys(kernel.Alias).length)
+      expect(Object.keys(kernel.Alias).length).toBe(0)
+
+      await kernel.registerAlias('code', 'com.microsoft.vscode')
+      expect(Object.keys(kernel.Alias).length).toBe(1)
+
+      await kernel.registerAlias('terminal', 'com.garyos.terminal')
+      expect(Object.keys(kernel.Alias).length).toBe(2)
+
+      await kernel.registerAlias('ls', 'com.garyos.ls')
+      expect(Object.keys(kernel.Alias).length).toBe(3)
+    })
+  })
+
   describe('.getApplication()', () => {
     test('should get an application by identifier', async () => {
       const kernel = await Kernel.getInstance(true)
@@ -269,6 +296,27 @@ export default describe('Kernel.js', () => {
       expect(async () => {
         await kernel.getApplication('com.garyos.preview')
       }).rejects.toThrowError()
+    })
+
+    test('should get an application by alias', async () => {
+      const kernel = await Kernel.getInstance(true)
+      const env: TerminalApplication = {
+        type: ApplicationType.Terminal,
+        metadata: buildApplicationMetadata(),
+        main: buildMainFunction()
+      }
+
+      expect(kernel.Applications.length).toBe(0)
+      await kernel.install(env)
+
+      expect(kernel.Applications.length).toBe(1)
+      expect(kernel.Applications[0].type).toBe(ApplicationType.Terminal)
+      expect(kernel.Applications[0].aid).toBe(env.metadata.identifier)
+
+      await kernel.registerAlias('code', env.metadata.identifier)
+      const app = await kernel.getApplication('code')
+      expect(app.type).toBe(ApplicationType.Terminal)
+      expect(app.aid).toBe(env.metadata.identifier)
     })
   })
 })

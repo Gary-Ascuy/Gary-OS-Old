@@ -7,18 +7,26 @@ import { ProcessOptions } from './options/ProcessOptions'
 
 import { Process } from './models/Process'
 import { Application } from './models/Application'
-
-const defaultOptions: KernelOptions = { env: {} }
+import { EnvironmentVariables } from './models/EnvironmentVariables'
+import { Alias } from './models/Alias'
 
 export default class Kernel extends EventEmitter {
   private static __instance?: Kernel = undefined
 
   constructor(
-    private options: KernelOptions = defaultOptions,
+    private options: KernelOptions = { env: {}, alias: {} },
     private applications: { [key: string]: Application } = {},
     private processes: { [key: string]: Process } = {},
   ) {
     super()
+  }
+
+  get EnvironmentVariables(): EnvironmentVariables {
+    return this.options.env
+  }
+
+  get Alias(): Alias {
+    return this.options.alias
   }
 
   get Applications(): Application[] {
@@ -48,10 +56,15 @@ export default class Kernel extends EventEmitter {
     return app
   }
 
-  async getApplication(aid: string): Promise<Application> {
-    if (!this.applications[aid]) throw new Error('Application not found')
+  async registerAlias(alias: string, aid: string) {
+    this.options.alias[alias] = aid
+  }
 
-    return this.applications[aid]
+  async getApplication(aidOrAlias: string): Promise<Application> {
+    const application = this.applications[aidOrAlias] || this.applications[this.options.alias[aidOrAlias]]
+
+    if (!application) throw new Error('Application not found')
+    return application
   }
 
   async open(options: ProcessOptions): Promise<Process> {
