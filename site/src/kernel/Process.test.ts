@@ -68,7 +68,7 @@ export default describe('Process.ts', () => {
 
     test('should execute and returns error with async functions', async () => {
       const options: ProcessOptions = { command: 'code', arguments: [], env: {} }
-      terminal.main = async (context: any) => {
+      terminal.main = async (context: ApplicationContext) => {
         await wait(20)
         return ProcessResponse.ERROR
       }
