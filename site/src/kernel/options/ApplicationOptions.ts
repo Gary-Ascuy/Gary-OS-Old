@@ -36,10 +36,19 @@ export interface ApplicationContext {
 
 export type AppicationMainFunction = (context: ApplicationContext) => Promise<number>
 
+/**
+ * const context: ApplicationContext = ...
+ * const code = await app.main(context)
+ * return code
+ */
 export interface TerminalApplication extends BaseApplication {
   main: AppicationMainFunction
 }
 
+/**
+ * const context: ApplicationContext = ...
+ * return <Terminal key={context.pid} {...context} />
+ */
 export interface WindowApplication extends BaseApplication {
   view: JSX.Element
 }
