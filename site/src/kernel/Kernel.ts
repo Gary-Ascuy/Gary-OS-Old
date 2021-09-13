@@ -9,6 +9,7 @@ import { Process } from './models/Process'
 import { Application } from './models/Application'
 
 const defaultOptions: KernelOptions = { env: {} }
+
 export default class Kernel extends EventEmitter {
   private static __instance?: Kernel = undefined
 
@@ -17,7 +18,15 @@ export default class Kernel extends EventEmitter {
     private applications: { [key: string]: Application } = {},
     private processes: { [key: string]: Process } = {},
   ) {
-    super(/* options */)
+    super()
+  }
+
+  get Applications(): Application[] {
+    return Object.values(this.applications)
+  }
+
+  get Processes(): Process[] {
+    return Object.values(this.processes)
   }
 
   async load(): Promise<void> {
@@ -25,12 +34,24 @@ export default class Kernel extends EventEmitter {
 
   // TODO: Validate auth/certs to install applications
   async install(options: ApplicationOptions): Promise<void> {
-    const app: Application = { aid: uuid(), type: options.type, options }
+    if (!!this.applications[options.metadata.identifier]) throw new Error('Application already exists')
+
+    const app: Application = { aid: options.metadata.identifier, type: options.type, options }
     this.applications[app.aid] = app
   }
 
-  async uninstall(aid: string): Promise<void> {
+  async uninstall(aid: string): Promise<Application> {
+    const app = this.applications[aid]
+    if (!app) throw new Error('Application not found')
+
     delete this.applications[aid]
+    return app
+  }
+
+  async getApplication(aid: string): Promise<Application> {
+    if (!this.applications[aid]) throw new Error('Application not found')
+
+    return this.applications[aid]
   }
 
   async open(options: ProcessOptions): Promise<Process> {
@@ -46,7 +67,13 @@ export default class Kernel extends EventEmitter {
     delete this.processes[pid]
   }
 
-  static async getInstance(): Promise<Kernel> {
+  static async getInstance(isUnitTest: boolean = false): Promise<Kernel> {
+    if (isUnitTest) {
+      const kernel = new Kernel()
+      await kernel.load()
+      return kernel
+    }
+
     if (!this.__instance) {
       this.__instance = new Kernel()
       await this.__instance.load()

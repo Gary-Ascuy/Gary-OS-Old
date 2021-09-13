@@ -9,11 +9,13 @@ export enum ApplicationType {
 }
 
 export interface ApplicationMedatada {
+  identifier: string
   name: string
   version: string
+  description?: string
 
-  icon: string
-  source: string
+  icon?: string
+  source?: string
 
   authors: ApplicationAuthor[]
 }
@@ -23,8 +25,10 @@ export interface BaseApplication {
   metadata: ApplicationMedatada
 }
 
+export type AppicationMainFunction<T> = (context: any) => Promise<T>
+
 export interface TerminalApplication extends BaseApplication {
-  main: (context: any) => Promise<number>
+  main: AppicationMainFunction<number> | AppicationMainFunction<void>
 }
 
 export interface WindowApplication extends BaseApplication {
