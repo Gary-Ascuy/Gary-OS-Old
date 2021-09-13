@@ -40,6 +40,8 @@ export default class Kernel extends EventEmitter {
   }
 
   async load(): Promise<void> {
+    this.emit('load', 0)
+    this.emit('load', 100)
   }
 
   async build(options: ApplicationOptions): Promise<Application> {
@@ -53,6 +55,7 @@ export default class Kernel extends EventEmitter {
 
     const app: Application = await this.build(options)
     this.applications[app.aid] = app
+    this.emit('install', app)
     return app
   }
 
@@ -61,15 +64,18 @@ export default class Kernel extends EventEmitter {
     if (!app) throw new Error('Application not found')
 
     delete this.applications[aid]
+    this.emit('uninstall', app)
     return app
   }
 
   async registerEnvironmentVariable(key: string, value: string) {
     this.options.env[key] = value
+    this.emit('registerEnvironmentVariable', { key, value })
   }
 
-  async registerAlias(alias: string, aid: string) {
-    this.options.alias[alias] = aid
+  async registerAlias(alias: string, identifier: string) {
+    this.options.alias[alias] = identifier
+    this.emit('registerAlias', { alias, identifier })
   }
 
   async getApplication(aidOrAlias: string): Promise<Application> {
@@ -80,13 +86,15 @@ export default class Kernel extends EventEmitter {
   }
 
   async open(options: ProcessOptions, _application?: Application): Promise<number> {
+    const pid = uuid()
     const application = _application ? _application : await this.getApplication(options.command)
 
-    const pid = uuid()
     const env = { ...this.options.env, ...options.env }
     const process: Process = { pid, env, options, application }
     this.processes[pid] = process
     this.emit('open', process)
+
+    const context = { pid, kernel: Kernel.getInstance(), process }
 
     if (application.type === ApplicationType.Terminal) {
       const terminal: TerminalApplication = application.options as TerminalApplication
