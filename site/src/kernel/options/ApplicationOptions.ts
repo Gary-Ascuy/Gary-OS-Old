@@ -28,7 +28,7 @@ export interface BaseApplication {
 export type AppicationMainFunction<T> = (context: any) => Promise<T>
 
 export interface TerminalApplication extends BaseApplication {
-  main: AppicationMainFunction<number> | AppicationMainFunction<void>
+  main: AppicationMainFunction<number>
 }
 
 export interface WindowApplication extends BaseApplication {

@@ -2,10 +2,10 @@ import { v4 as uuid } from 'uuid'
 import { EventEmitter } from 'events'
 
 import { KernelOptions } from './options/KernelOptions'
-import { ApplicationOptions } from './options/ApplicationOptions'
+import { ApplicationOptions, ApplicationType, TerminalApplication } from './options/ApplicationOptions'
 import { ProcessOptions } from './options/ProcessOptions'
 
-import { Process } from './models/Process'
+import { Process, ProcessResponse } from './models/Process'
 import { Application } from './models/Application'
 import { EnvironmentVariables } from './models/EnvironmentVariables'
 import { Alias } from './models/Alias'
@@ -42,12 +42,18 @@ export default class Kernel extends EventEmitter {
   async load(): Promise<void> {
   }
 
+  async build(options: ApplicationOptions): Promise<Application> {
+    const application: Application = { aid: options.metadata.identifier, type: options.type, options }
+    return application
+  }
+
   // TODO: Validate auth/certs to install applications
-  async install(options: ApplicationOptions): Promise<void> {
+  async install(options: ApplicationOptions): Promise<Application> {
     if (!!this.applications[options.metadata.identifier]) throw new Error('Application already exists')
 
-    const app: Application = { aid: options.metadata.identifier, type: options.type, options }
+    const app: Application = await this.build(options)
     this.applications[app.aid] = app
+    return app
   }
 
   async uninstall(aid: string): Promise<Application> {
@@ -73,17 +79,28 @@ export default class Kernel extends EventEmitter {
     return application
   }
 
-  async open(options: ProcessOptions): Promise<Process> {
-    const env = { ...this.options.env, ...options.env }
-    const process = { pid: uuid(), env, options }
+  async open(options: ProcessOptions, _application?: Application): Promise<number> {
+    const application = _application ? _application : await this.getApplication(options.command)
 
-    this.processes[process.pid] = process
-    return process
+    const pid = uuid()
+    const env = { ...this.options.env, ...options.env }
+    const process: Process = { pid, env, options, application }
+    this.processes[pid] = process
+    this.emit('open', process)
+
+    if (application.type === ApplicationType.Terminal) {
+      const terminal: TerminalApplication = application.options as TerminalApplication
+      const code = await terminal.main(process)
+      return code
+    }
+
+    return ProcessResponse.SUCCESS
   }
 
   async kill(pid: string) {
     const process = this.processes[pid]
     delete this.processes[pid]
+    this.emit('kill', process)
   }
 
   static async getInstance(isUnitTest: boolean = false): Promise<Kernel> {

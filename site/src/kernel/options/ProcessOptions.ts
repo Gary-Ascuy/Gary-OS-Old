@@ -6,7 +6,7 @@ export interface ProcessOptions {
 
   env: EnvironmentVariables
 
-  stdin: ReadableStream
-  stdout: WritableStream
-  stderr: WritableStream
+  stdin?: ReadableStream
+  stdout?: WritableStream
+  stderr?: WritableStream
 }

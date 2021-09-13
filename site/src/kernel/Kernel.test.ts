@@ -1,6 +1,7 @@
 import React from 'react'
 
 import Kernel from './Kernel'
+import { ProcessResponse } from './models/Process'
 import {
   AppicationMainFunction, ApplicationMedatada, ApplicationType,
   TerminalApplication, WindowApplication
@@ -18,12 +19,12 @@ export function buildApplicationMetadata(
 }
 
 export function buildMainFunction(
-  action: AppicationMainFunction<void> = async (context: any) => { console.log('test') },
+  action: AppicationMainFunction<number> = async (context: any) => ProcessResponse.SUCCESS,
 ) {
   return action
 }
 
-export default describe('Kernel.js', () => {
+export default describe('Kernel.ts', () => {
   describe('.constructor()', () => {
     test('should create an instance using constructor', () => {
       const kernel = new Kernel()
