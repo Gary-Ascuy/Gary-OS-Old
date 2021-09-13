@@ -10,6 +10,8 @@ import { Application } from './models/Application'
 import { EnvironmentVariables } from './models/EnvironmentVariables'
 import { Alias } from './models/Alias'
 
+import './FileSystem'
+
 export default class Kernel extends EventEmitter {
   private static __instance?: Kernel = undefined
 
@@ -91,12 +93,12 @@ export default class Kernel extends EventEmitter {
       return kernel
     }
 
-    if (!this.__instance) {
-      this.__instance = new Kernel()
-      await this.__instance.load()
+    if (!Kernel.__instance) {
+      Kernel.__instance = new Kernel()
+      await Kernel.__instance.load()
     }
 
-    return this.__instance
+    return Kernel.__instance
   }
 }
 
