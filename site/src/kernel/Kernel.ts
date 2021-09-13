@@ -56,6 +56,10 @@ export default class Kernel extends EventEmitter {
     return app
   }
 
+  async registerEnvironmentVariable(key: string, value: string) {
+    this.options.env[key] = value
+  }
+
   async registerAlias(alias: string, aid: string) {
     this.options.alias[alias] = aid
   }

@@ -230,6 +230,42 @@ export default describe('Kernel.js', () => {
     })
   })
 
+  describe('.registerEnvironmentVariable()', () => {
+    test('should register an env variable', async () => {
+      const kernel = await Kernel.getInstance(true)
+
+      expect(Object.keys(kernel.EnvironmentVariables).length).toBe(0)
+
+      await kernel.registerEnvironmentVariable('PATH', '/home/bin;/local/bin;')
+      expect(Object.keys(kernel.EnvironmentVariables).length).toBe(1)
+    })
+
+    test('should register more than one env variable', async () => {
+      const kernel = await Kernel.getInstance(true)
+      expect(Object.keys(kernel.EnvironmentVariables).length).toBe(0)
+
+      await kernel.registerEnvironmentVariable('PATH', '/home/bin;/local/bin;')
+      expect(Object.keys(kernel.EnvironmentVariables).length).toBe(1)
+
+      await kernel.registerEnvironmentVariable('HOME', '/home/bin')
+      expect(Object.keys(kernel.EnvironmentVariables).length).toBe(2)
+
+      await kernel.registerEnvironmentVariable('GARYOS_PATH', '/home/garyos/home')
+      expect(Object.keys(kernel.EnvironmentVariables).length).toBe(3)
+    })
+
+    test('should overwrite an env variable', async () => {
+      const kernel = await Kernel.getInstance(true)
+      expect(Object.keys(kernel.EnvironmentVariables).length).toBe(0)
+
+      await kernel.registerEnvironmentVariable('PATH', '/home/bin;/local/bin;')
+      expect(Object.keys(kernel.EnvironmentVariables).length).toBe(1)
+
+      await kernel.registerEnvironmentVariable('PATH', '/home/bin;/local/bin;/root/user/bin;')
+      expect(Object.keys(kernel.EnvironmentVariables).length).toBe(1)
+    })
+  })
+
   describe('.registerAlias()', () => {
     test('should register an alias', async () => {
       const kernel = await Kernel.getInstance(true)
@@ -242,8 +278,6 @@ export default describe('Kernel.js', () => {
 
     test('should register more than one alias', async () => {
       const kernel = await Kernel.getInstance(true)
-
-      console.log(kernel.Alias, Object.keys(kernel.Alias).length)
       expect(Object.keys(kernel.Alias).length).toBe(0)
 
       await kernel.registerAlias('code', 'com.microsoft.vscode')
@@ -254,6 +288,17 @@ export default describe('Kernel.js', () => {
 
       await kernel.registerAlias('ls', 'com.garyos.ls')
       expect(Object.keys(kernel.Alias).length).toBe(3)
+    })
+
+    test('should overwrite one alias', async () => {
+      const kernel = await Kernel.getInstance(true)
+      expect(Object.keys(kernel.Alias).length).toBe(0)
+
+      await kernel.registerAlias('code', 'com.microsoft.vscode')
+      expect(Object.keys(kernel.Alias).length).toBe(1)
+
+      await kernel.registerAlias('code', 'com.garyos.terminal')
+      expect(Object.keys(kernel.Alias).length).toBe(1)
     })
   })
 
