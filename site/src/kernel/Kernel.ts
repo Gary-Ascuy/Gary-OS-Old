@@ -9,8 +9,10 @@ import { Process, ProcessResponse } from './models/Process'
 import { Application } from './models/Application'
 import { EnvironmentVariables } from './models/EnvironmentVariables'
 import { Alias } from './models/Alias'
+import { ApplicationNotFound } from './error/ApplicationNotFound'
 
 import './FileSystem'
+import { ApplicationAlreadyExist } from './error/ApplicationAlreadyExist'
 
 export default class Kernel extends EventEmitter {
   private static __instance?: Kernel = undefined
@@ -51,7 +53,7 @@ export default class Kernel extends EventEmitter {
 
   // TODO: Validate auth/certs to install applications
   async install(options: ApplicationOptions): Promise<Application> {
-    if (!!this.applications[options.metadata.identifier]) throw new Error('Application already exists')
+    if (!!this.applications[options.metadata.identifier]) throw new ApplicationAlreadyExist()
 
     const app: Application = await this.build(options)
     this.applications[app.aid] = app
@@ -61,7 +63,7 @@ export default class Kernel extends EventEmitter {
 
   async uninstall(aid: string): Promise<Application> {
     const app = this.applications[aid]
-    if (!app) throw new Error('Application not found')
+    if (!app) throw new ApplicationNotFound()
 
     delete this.applications[aid]
     this.emit('uninstall', app)
@@ -81,7 +83,7 @@ export default class Kernel extends EventEmitter {
   async getApplication(aidOrAlias: string): Promise<Application> {
     const application = this.applications[aidOrAlias] || this.applications[this.options.alias[aidOrAlias]]
 
-    if (!application) throw new Error('Application not found')
+    if (!application) throw new ApplicationNotFound()
     return application
   }
 

@@ -1,3 +1,6 @@
+import { InvalidFileSystemMode } from "./error/InvalidFileSystemMode"
+import { NotImplementedYet } from "./error/NotImplementedYet"
+
 export type FileStream = WritableStream | ReadableStream | TransformStream
 
 export abstract class FileSystem {
@@ -21,7 +24,7 @@ export enum FileMode {
 
 export class MemoryFileSystem extends FileSystem {
   open(path: string, mode: FileMode = FileMode.Read): FileStream {
-    throw new Error('Not implemented yet')
+    throw new NotImplementedYet()
   }
 }
 
@@ -71,7 +74,7 @@ export class LocalStorageFileSystem extends FileSystem {
         return new TransformStream({ start, transform })
       }
 
-      default: throw new Error('Invalid FileSystem Mode')
+      default: throw new InvalidFileSystemMode()
     }
   }
 }
