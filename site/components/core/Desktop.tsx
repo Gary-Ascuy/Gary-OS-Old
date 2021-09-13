@@ -1,6 +1,5 @@
 import Dock from '../dock/Dock'
 import Menu from '../menu/Menu'
-import Window from '../window/Window'
 
 import { DockOption } from '../../src/view/DockOption'
 import { MenuOption } from '../../src/view/MenuOption'
@@ -28,7 +27,6 @@ export function Desktop(): JSX.Element {
       <Menu items={menus}></Menu>
       <section>
         <Terminal></Terminal>
-        <Terminal title='docker' box={{ x: 300, y: 400, width: 650, height: 300 }}></Terminal>
       </section>
       <Dock items={docks}></Dock>
     </>
