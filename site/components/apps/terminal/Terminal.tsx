@@ -79,7 +79,9 @@ export default function Terminal({ title, box }: WindowOption) {
               addLines(`${PS1} ${value}`, `zsh: command not found: ${command}`)
               setValue('')
 
-              open({ env: {} } as ProcessOptions).then((a) => console.log(a))
+              open({ env: {} } as ProcessOptions)
+                .then((a) => console.log(a))
+                .catch(e => console.log(e))
             } else setValue(value)
           }}>
         </textarea>
