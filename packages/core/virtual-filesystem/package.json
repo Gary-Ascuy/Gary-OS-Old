@@ -1,0 +1,20 @@
+{
+  "name": "@garyos/virtual-file-system",
+  "version": "0.0.1",
+  "description": "Gary OS - Virtual File System",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "garyos",
+    "gos",
+    "virtual",
+    "filesystem"
+  ],
+  "author": "Gary Ascuy <gary.ascuy@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^27.2.0"
+  }
+}
