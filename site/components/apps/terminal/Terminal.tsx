@@ -5,7 +5,7 @@ import { ProcessOptions } from '../../../src/kernel/options/ProcessOptions'
 import Window from '../../window/Window'
 
 import style from './Terminal.module.css'
-import { parse } from '../../../src/kernel/Process'
+import { parseProcessOptions } from '../../../src/kernel/Utils'
 
 // { process }: TerminalProps extends AppicationProps
 export default function Terminal({ title, box }: WindowOption) {
@@ -85,7 +85,7 @@ export default function Terminal({ title, box }: WindowOption) {
               const [command] = value.split(' ')
               // addLines(`${PS1} ${value}`, `zsh: command not found: ${command}`)
 
-              const [options] = parse(value)
+              const [options] = parseProcessOptions(value)
               // addLines(PS1)
               options.stdout = getStandardOutput()
               options.stderr = getStandardOutput()

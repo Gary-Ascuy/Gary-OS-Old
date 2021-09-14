@@ -77,7 +77,7 @@ export default class Kernel extends EventEmitter {
       }
     }
 
-    this.install(echo)
+    // this.install(echo)
 
     this.emit('loading', 100)
   }

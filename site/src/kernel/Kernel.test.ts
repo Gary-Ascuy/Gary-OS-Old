@@ -19,8 +19,8 @@ export function buildApplicationMetadata(
 }
 
 export function buildMainFunction(
-  action: AppicationMainFunction<number> = async (context: any) => ProcessResponse.SUCCESS,
-) {
+  action: AppicationMainFunction = async (context: any) => ProcessResponse.SUCCESS as number,
+): any {
   return action
 }
 
@@ -57,7 +57,7 @@ export default describe('Kernel.ts', () => {
 
   describe('.load()', () => {
     test('should call load without exception', async () => {
-      const kernel = await Kernel.getInstance()
+      const kernel = new Kernel()
       await kernel.load()
 
       expect(kernel).toBeDefined()
