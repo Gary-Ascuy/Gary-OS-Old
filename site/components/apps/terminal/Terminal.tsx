@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { WindowOption } from '../../../src/view/WindowOption'
 import { useKernel } from '../../../src/kernel/Kernel'
 import { ProcessOptions } from '../../../src/kernel/options/ProcessOptions'
@@ -7,19 +7,24 @@ import Window from '../../window/Window'
 import style from './Terminal.module.css'
 import { parseProcessOptions } from '../../../src/kernel/Utils'
 
+
+let xlines: string[] = []
+
 // { process }: TerminalProps extends AppicationProps
 export default function Terminal({ title, box }: WindowOption) {
-  const [value, setValue] = useState('echo "Gary Is Coming!!"')
+  const [value, setValue] = useState('A=gary env | uppercase')
   const [PS1, setPS1] = useState('gary @Gary-MacBook-Pro site %')
-  const [lines, setLines] = useState([
-    'gary @Gary-MacBook-Pro site % docker run -it -p 80:80 nginx',
-    'zsh: command not found: docker',
-    'gary @Gary-MacBook-Pro site % docker-compose build -d',
-    'zsh: command not found: docker-compose',
-    'gary @Gary-MacBook-Pro site %',
-    'gary @Gary-MacBook-Pro site %',
-    'gary @Gary-MacBook-Pro site %',
+  const [lines, setLines] = useState<string[]>([
+    // 'gary @Gary-MacBook-Pro site % docker run -it -p 80:80 nginx',
+    // 'zsh: command not found: docker',
+    // 'gary @Gary-MacBook-Pro site % docker-compose build -d',
+    // 'zsh: command not found: docker-compose',
+    // 'gary @Gary-MacBook-Pro site %',
+    // 'gary @Gary-MacBook-Pro site %',
+    // 'gary @Gary-MacBook-Pro site %',
   ])
+
+  xlines = lines
 
   const ps1 = useRef<HTMLDivElement>(null)
   const [textIndent, setTextIndent] = useState('')
@@ -30,9 +35,12 @@ export default function Terminal({ title, box }: WindowOption) {
     setTextIndent(`${width + 5}px`)
   }, [ps1])
 
+  const valueLines = useMemo(() => lines, [lines])
+
   const addLines = useCallback((...newLines: string[]) => {
-    setLines([...lines, ...newLines])
-  }, [lines])
+    const old = xlines
+    setLines([...old, ...newLines])
+  }, [])
 
   const getStandardOutput = useCallback(() => {
     return new WritableStream({
@@ -89,15 +97,26 @@ export default function Terminal({ title, box }: WindowOption) {
               const [command] = value.split(' ')
               // addLines(`${PS1} ${value}`, `zsh: command not found: ${command}`)
 
-              const [options] = parseProcessOptions(value)
-              // addLines(PS1)
-              options.stdout = getStandardOutput()
+              const [options, _, grep] = parseProcessOptions(value)
+
+              addLines(`${PS1} ${value}`)
+
+              const transform = new TransformStream()
+              options.stdout = grep ? transform.writable : getStandardOutput()
               options.stderr = getStandardOutput()
+
+              if (grep) {
+                grep.stdin = transform.readable
+                grep.stdout = getStandardOutput()
+                grep.stderr = getStandardOutput()
+              }
+
               setValue('')
 
-              open(options)
+              Promise.all([options, grep].filter(Boolean).map(open))
                 .then((a) => console.log(a))
-                .catch(e => console.log(e))
+                .catch(e => addLines(`zsh: command not found: ${command}`))
+
             } else setValue(value)
           }}>
         </textarea>

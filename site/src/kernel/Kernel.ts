@@ -14,6 +14,8 @@ import { ApplicationNotFound } from './error/ApplicationNotFound'
 import './FileSystem'
 import { ApplicationAlreadyExist } from './error/ApplicationAlreadyExist'
 import { replaceEnvVariables } from './Utils'
+import format from 'date-fns/format'
+import { addMinutes } from 'date-fns'
 
 export default class Kernel extends EventEmitter {
   private static __instance?: Kernel = undefined
@@ -54,32 +56,14 @@ export default class Kernel extends EventEmitter {
         authors: [{ name: 'Gary Ascuy', email: 'gary.ascuy@gmail.com' }],
       },
       main: async (context: ApplicationContext) => {
-        console.log('============= ECHO =============')
         const { process } = context
-        console.log(...process.options.arguments)
-        console.log('Env Variables', process.env)
         const writer = context.process.options.stdout?.getWriter()
-
-        // writer?.write(new Date().toISOString() + process.options.arguments.join(' '))
-        // await new Promise((resolve) => setTimeout(resolve, 2000))
-
-        // writer?.write(new Date().toISOString() + process.options.arguments.join(' '))
-        // await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        // writer?.write(new Date().toISOString() + process.options.arguments.join(' '))
-        // await new Promise((resolve) => setTimeout(resolve, 500))
-
-        // writer?.write('that\'s all params !!!')
-
         writer?.write(process.options.arguments.join(' '))
-
         writer?.close()
         return 0
       }
     }
-
     this.install(echo)
-
 
     const env: TerminalApplication = {
       type: ApplicationType.Terminal,
@@ -102,6 +86,80 @@ export default class Kernel extends EventEmitter {
       }
     }
     this.install(env)
+
+    const uppercase: TerminalApplication = {
+      type: ApplicationType.Terminal,
+      metadata: {
+        identifier: 'uppercase',
+        name: 'UpperCase',
+        version: '1.0.0',
+        authors: [{ name: 'Gary Ascuy', email: 'gary.ascuy@gmail.com' }],
+      },
+      main: async (context: ApplicationContext) => {
+        const { stdout, stdin } = context.process.options
+        const writer = stdout?.getWriter()
+        const reader = stdin?.getReader()
+
+        while (reader && writer) {
+          const { done, value } = await reader.read()
+          if (done) break
+          writer.write(`${value}`.toUpperCase())
+          console.log(`${value}`.toUpperCase())
+        }
+
+        writer?.close()
+        return 0
+      }
+    }
+    this.install(uppercase)
+
+    const lowercase: TerminalApplication = {
+      type: ApplicationType.Terminal,
+      metadata: {
+        identifier: 'lowercase',
+        name: 'LowerCase',
+        version: '1.0.0',
+        authors: [{ name: 'Gary Ascuy', email: 'gary.ascuy@gmail.com' }],
+      },
+      main: async (context: ApplicationContext) => {
+        const { stdout, stdin } = context.process.options
+        const writer = stdout?.getWriter()
+        const reader = stdin?.getReader()
+
+        while (reader && writer) {
+          const { done, value } = await reader.read()
+          if (done) break
+          writer.write(`${value}`.toLowerCase())
+          console.log(`${value}`.toLowerCase())
+        }
+
+        writer?.close()
+        return 0
+      }
+    }
+    this.install(lowercase)
+
+    const date: TerminalApplication = {
+      type: ApplicationType.Terminal,
+      metadata: {
+        identifier: 'date',
+        name: 'Date',
+        version: '1.0.0',
+        authors: [{ name: 'Gary Ascuy', email: 'gary.ascuy@gmail.com' }],
+      },
+      main: async (context: ApplicationContext) => {
+        const { stdout, arguments: argvs } = context.process.options
+        const writer = stdout?.getWriter()
+
+        const hasFormat = argvs.length > 1 && (argvs.includes('--format') || argvs.includes('-f'))
+        const [customFormat] = argvs.reverse()
+        const message = format(new Date(), hasFormat ? customFormat : 'eee MMM dd HH:mm:ss OOOO yyyy')
+        writer?.write(message)
+        writer?.close()
+        return 0
+      }
+    }
+    this.install(date)
 
     this.emit('loading', 100)
   }
