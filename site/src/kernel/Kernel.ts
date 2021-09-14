@@ -13,12 +13,13 @@ import { ApplicationNotFound } from './error/ApplicationNotFound'
 
 import './FileSystem'
 import { ApplicationAlreadyExist } from './error/ApplicationAlreadyExist'
+import { replaceEnvVariables } from './Utils'
 
 export default class Kernel extends EventEmitter {
   private static __instance?: Kernel = undefined
 
   constructor(
-    private options: KernelOptions = { env: {}, alias: {} },
+    private options: KernelOptions = { env: { HOME: '/root/gary' }, alias: {} },
     private applications: { [key: string]: Application } = {},
     private processes: { [key: string]: Process } = {},
   ) {
@@ -77,7 +78,30 @@ export default class Kernel extends EventEmitter {
       }
     }
 
-    // this.install(echo)
+    this.install(echo)
+
+
+    const env: TerminalApplication = {
+      type: ApplicationType.Terminal,
+      metadata: {
+        identifier: 'env',
+        name: 'Env',
+        version: '1.0.0',
+        authors: [{ name: 'Gary Ascuy', email: 'gary.ascuy@gmail.com' }],
+      },
+      main: async (context: ApplicationContext) => {
+        const { stdout } = context.process.options
+        const writer = stdout?.getWriter()
+        const { env } = context.process
+        for (const key of Object.keys(env)) {
+          writer?.write(`${key}=${env[key]}`)
+          console.log(`${key}=${env[key]}`)
+        }
+        writer?.close()
+        return 0
+      }
+    }
+    this.install(env)
 
     this.emit('loading', 100)
   }
@@ -128,6 +152,11 @@ export default class Kernel extends EventEmitter {
     const application = _application ? _application : await this.getApplication(options.command)
 
     const env = { ...this.options.env, ...options.env }
+    for (const key of Object.keys(options.env)) {
+      env[key] = replaceEnvVariables(env[key], env)
+    }
+    options.arguments = options.arguments.map((value) => replaceEnvVariables(value, env))
+
     const process: Process = { pid, env, options, application }
     this.processes[pid] = process
     this.emit('open', process)

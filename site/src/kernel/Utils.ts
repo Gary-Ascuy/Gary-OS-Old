@@ -67,7 +67,7 @@ export function buildProcessOptions(argvs: string[]): ProcessOptions {
   const env: EnvironmentVariables = {}
 
   let [command, ...rest] = argvs
-  while (/\w=\w/.test(command)) {
+  while (/\w=.*/.test(command)) {
     const [key, value] = command.split(/=/)
     env[key] = value
 

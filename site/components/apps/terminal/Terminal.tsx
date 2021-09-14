@@ -53,7 +53,11 @@ export default function Terminal({ title, box }: WindowOption) {
       <div style={{ position: 'relative' }}>
         <div className={style.ps1} ref={ps1}>{PS1}</div>
 
-        <textarea rows={10} className={style.input} value={value}
+        <textarea rows={10}
+          spellCheck='false' autoComplete='false'
+          autoCorrect='false' autoCapitalize='false'
+          data-gramm='false'
+          className={style.input} value={value}
           style={{ textIndent }}
           onChange={(event) => {
             const { value } = event.target
