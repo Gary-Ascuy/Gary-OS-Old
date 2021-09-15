@@ -8,6 +8,12 @@ import { FileStream, VirtualFileSystem } from '../../models/VirtualFileSystem'
 export class MemoryFileSystem extends VirtualFileSystem {
   private _disk: MemoryDisk = { index: {}, data: {} }
 
+  async mount(): Promise<void> {
+  }
+
+  async unmount(): Promise<void> {
+  }
+
   async open(path: string, mode: string = 'r'): Promise<FileStream> {
     if (!/^[rwa]{1}$/.test(mode)) throw new Error('Invalid File Mode')
 
