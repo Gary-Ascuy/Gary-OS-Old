@@ -1,17 +1,16 @@
-import type { Config } from '@jest/types'
-
-export default async (): Promise<Config.InitialOptions> => {
+module.exports = () => {
   return {
-    preset: "ts-jest",
+    preset: 'ts-jest',
     verbose: true,
     testEnvironment: 'jsdom',
-    modulePathIgnorePatterns: ['lib/'],
+    modulePathIgnorePatterns: ['<rootDir>/lib/'],
+    testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/lib/'],
     roots: ['<rootDir>/src'],
     transform: {
       '^.+\\.(ts|tsx)$': 'ts-jest',
     },
     coveragePathIgnorePatterns: [
-      "/node_modules/"
+      '/node_modules/'
     ],
   }
 }
