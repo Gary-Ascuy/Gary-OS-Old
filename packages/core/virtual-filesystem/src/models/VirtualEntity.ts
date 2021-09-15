@@ -1,9 +1,10 @@
-export interface VirtualEntity {
-    path: string
-    type: number
+export abstract class VirtualEntity {
+  public lock: boolean = false
 
-    createdAt: number
-    updatedAt: number
-
-    tags: string[]
+  constructor(
+    public path: string,
+    public tags: string[] = [],
+    public createdAt: number = new Date().getTime(),
+    public updatedAt: number = new Date().getTime(),
+  ) { }
 }

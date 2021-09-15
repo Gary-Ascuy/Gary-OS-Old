@@ -1,5 +1,5 @@
-import { VirtualEntity } from './VirtualEntity'
+import { VirtualFile } from './VirtualFile'
 
-export interface VirtualFolder extends VirtualEntity {
-    length: number
+export abstract class VirtualFolder extends VirtualFile {
+  abstract length(): Promise<number>
 }

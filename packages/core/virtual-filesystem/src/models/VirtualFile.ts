@@ -1,5 +1,5 @@
 import { VirtualEntity } from './VirtualEntity'
 
-export interface VirtualFile extends VirtualEntity {
-    size: number
+export abstract class VirtualFile extends VirtualEntity {
+  abstract size(): Promise<number>
 }
