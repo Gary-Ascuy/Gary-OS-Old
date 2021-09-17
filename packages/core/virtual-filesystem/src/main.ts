@@ -20,8 +20,11 @@ export async function isFile(file: VirtualFile) {
   return !await isDirectory(file)
 }
 
-export function addTags(file: VirtualFile, tags: string[]): VirtualFile {
+export async function addTags(file: VirtualFile, tags: string[]): Promise<VirtualFile> {
   checkFile(file)
-  file.tags = concat(file.tags).filter(Boolean)
+
+  const set = new Set(concat(file.tags, tags).filter(Boolean))
+
+  file.tags = Array.from(set.keys())
   return file
 }
