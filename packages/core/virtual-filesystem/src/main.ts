@@ -5,7 +5,13 @@ import { VirtualFile } from './models/VirtualFile'
 import { VirtualFileKind } from './models/VirtualFileKind'
 
 export * from './models/VirtualFile'
+export * from './models/VirtualFileKind'
 export * from './models/VirtualFileSystem'
+
+export * from './FileSystemManager'
+export * as memory from './core/memory-filesystem'
+export * as localstorage from './core/localstorage-filesystem'
+export * as github from './core/github-filesystem'
 
 function checkFile(file: VirtualFile) {
   if (!file) throw new InvalidFileReferenceError()

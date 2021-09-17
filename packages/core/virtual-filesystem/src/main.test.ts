@@ -68,6 +68,4 @@ describe('main.ts', () => {
       expect(file.tags).toEqual(['test', 'gary', 'info'])
     })
   })
-
-
 })
