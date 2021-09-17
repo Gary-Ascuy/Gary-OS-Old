@@ -8,6 +8,8 @@ export * from './models/VirtualFile'
 export * from './models/VirtualFileKind'
 export * from './models/VirtualFileSystem'
 
+export * as errors from './errors'
+
 export * from './FileSystemManager'
 export * as memory from './core/memory-filesystem'
 export * as localstorage from './core/localstorage-filesystem'
