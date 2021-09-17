@@ -1,7 +1,9 @@
+import isString from 'lodash/isString'
 import startsWith from 'lodash/startsWith'
 
-import { MemoryFileSystem } from './core/memory-filesystem/MemoryFileSystem'
+import { VirtualFile } from './models/VirtualFile'
 import { FileStream, VirtualFileSystem } from './models/VirtualFileSystem'
+import { MemoryFileSystem } from './core/memory-filesystem/MemoryFileSystem'
 
 export class FileSystemManager extends VirtualFileSystem {
   constructor(
@@ -28,6 +30,18 @@ export class FileSystemManager extends VirtualFileSystem {
   async unmount(): Promise<void> {
     const keys = Object.keys(this.map)
     for (const key of keys) await this.uninstall(key)
+  }
+
+  async getFile(path: string, exclusive: boolean): Promise<VirtualFile> {
+    const fs = await this.getFileSystem(path)
+    return fs.getFile(path, exclusive)
+
+  }
+
+  async free(file: VirtualFile | string): Promise<void> {
+    const path = isString(file) ? file : file.path
+    const fs = await this.getFileSystem(path)
+    await fs.free(file)
   }
 
   async open(path: string, mode: string): Promise<FileStream> {

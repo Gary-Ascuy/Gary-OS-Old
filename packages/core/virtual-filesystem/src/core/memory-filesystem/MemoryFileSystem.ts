@@ -1,9 +1,12 @@
 import { v4 as uuid } from 'uuid'
 import { WritableStream, ReadableStream } from 'web-streams-polyfill'
+import isString from 'lodash/isString'
 
 import { MemoryDisk } from './MemoryDisk'
 import { MemoryFile } from './MemoryFile'
+
 import { FileStream, VirtualFileSystem } from '../../models/VirtualFileSystem'
+import { VirtualFile } from '../../models/VirtualFile'
 
 export class MemoryFileSystem extends VirtualFileSystem {
   private _disk: MemoryDisk = { index: {}, data: {} }
@@ -12,6 +15,19 @@ export class MemoryFileSystem extends VirtualFileSystem {
   }
 
   async unmount(): Promise<void> {
+  }
+
+  public async getFile(path: string, exclusive: boolean = false): Promise<MemoryFile> {
+    const file = this._disk.index[path]
+    if (file && file.lock) throw new Error('The process cannot access the file because it is being used by another process')
+    const registeredFile = file ? file : this.register(new MemoryFile(uuid(), path))
+    registeredFile.lock = exclusive
+    return registeredFile
+  }
+
+  public async free(file: VirtualFile | string): Promise<void> {
+    const path = isString(file) ? file : file.path
+    this._disk.index[path].lock = false
   }
 
   async open(path: string, mode: string = 'r'): Promise<FileStream> {
@@ -70,9 +86,9 @@ export class MemoryFileSystem extends VirtualFileSystem {
       write: (chunk: string, controller: WritableStreamDefaultController) => {
         this._disk.data[file.uuid] += chunk
       },
-      close: () => {
-        file.lock = false
-        file.setSize(this._disk.data[file.uuid]?.length ?? 0)
+      close: async () => {
+        file.size = this._disk.data[file.uuid]?.length ?? 0
+        await this.free(file)
       },
     })
   }
@@ -81,13 +97,5 @@ export class MemoryFileSystem extends VirtualFileSystem {
     this._disk.index[file.path] = file
     this._disk.data[file.uuid] = ''
     return file
-  }
-
-  private async getFile(path: string, exclusive: boolean = false): Promise<MemoryFile> {
-    const file = this._disk.index[path]
-    if (file && file.lock) throw new Error('The process cannot access the file because it is being used by another process')
-    const registeredFile = file ? file : this.register(new MemoryFile(uuid(), path))
-    registeredFile.lock = exclusive
-    return registeredFile
   }
 }

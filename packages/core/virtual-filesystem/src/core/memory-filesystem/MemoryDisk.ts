@@ -1,8 +1,7 @@
 import { MemoryFile } from './MemoryFile'
-import { MemoryFolder } from './MemoryFolder'
 
 export interface MemoryDiskFile {
-  [path: string]: MemoryFile | MemoryFolder
+  [path: string]: MemoryFile
 }
 
 export interface MemoryDiskData {

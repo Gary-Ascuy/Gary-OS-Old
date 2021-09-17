@@ -1,7 +1,10 @@
+import isString from 'lodash/isString'
 import { WritableStream, ReadableStream } from 'web-streams-polyfill'
 
-import { FileStream, VirtualFileSystem } from '../../models/VirtualFileSystem'
 import { LocalStorageFile } from './LocalStorageFile'
+
+import { VirtualFile } from '../../models/VirtualFile'
+import { FileStream, VirtualFileSystem } from '../../models/VirtualFileSystem'
 
 export class LocalStorageFileSystem extends VirtualFileSystem {
   constructor(
@@ -17,6 +20,19 @@ export class LocalStorageFileSystem extends VirtualFileSystem {
 
   async unmount(): Promise<void> {
     await this.saveIndex()
+  }
+
+  public async getFile(path: string, exclusive: boolean = false): Promise<LocalStorageFile> {
+    const file = this.index[path]
+    if (file && file.lock) throw new Error('The process cannot access the file because it is being used by another process')
+    const registeredFile = file ? file : this.register(new LocalStorageFile(path))
+    registeredFile.lock = exclusive
+    return registeredFile
+  }
+
+  public async free(file: VirtualFile | string): Promise<void> {
+    const path = isString(file) ? file : file.path
+    this.index[path].lock = false
   }
 
   async open(path: string, mode: string = 'r'): Promise<FileStream> {
@@ -77,21 +93,15 @@ export class LocalStorageFileSystem extends VirtualFileSystem {
       write: (chunk: string, controller: WritableStreamDefaultController) => {
         ref.value += chunk
       },
-      close: () => {
-        file.lock = false
+      close: async () => {
         localStorage.setItem(this.getDataKey(path), ref.value)
-        file.setSize(ref.value.length ?? 0)
+        file.size = ref.value.length ?? 0
+        await this.free(file)
       },
     })
   }
 
-  private async getFile(path: string, exclusive: boolean = false): Promise<LocalStorageFile> {
-    const file = this.index[path]
-    if (file && file.lock) throw new Error('The process cannot access the file because it is being used by another process')
-    const registeredFile = file ? file : this.register(new LocalStorageFile(path))
-    registeredFile.lock = exclusive
-    return registeredFile
-  }
+
 
   private register(file: LocalStorageFile): LocalStorageFile {
     this.index[file.path] = file

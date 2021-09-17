@@ -1,5 +1,13 @@
-import { VirtualEntity } from './VirtualEntity'
+import { VirtualFileKind } from './VirtualFileKind'
 
-export abstract class VirtualFile extends VirtualEntity {
-  abstract size(): Promise<number>
+export interface VirtualFile {
+  lock: boolean
+
+  path: string
+  kind: VirtualFileKind
+  tags: string[]
+
+  size: number
+  createdAt: number
+  updatedAt: number
 }
