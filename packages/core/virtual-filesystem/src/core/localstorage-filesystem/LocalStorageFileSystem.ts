@@ -5,6 +5,7 @@ import { LocalStorageFile } from './LocalStorageFile'
 
 import { VirtualFile } from '../../models/VirtualFile'
 import { FileStream, VirtualFileSystem } from '../../models/VirtualFileSystem'
+import { FileDoesNotExistError, FileOpenInOtherProcessError, InvalidFileModeError } from '../../errors'
 
 export class LocalStorageFileSystem extends VirtualFileSystem {
   constructor(
@@ -24,7 +25,7 @@ export class LocalStorageFileSystem extends VirtualFileSystem {
 
   public async getFile(path: string, exclusive: boolean = false): Promise<LocalStorageFile> {
     const file = this.index[path]
-    if (file && file.lock) throw new Error('The process cannot access the file because it is being used by another process')
+    if (file && file.lock) throw new FileOpenInOtherProcessError()
     const registeredFile = file ? file : this.register(new LocalStorageFile(path))
     registeredFile.lock = exclusive
     return registeredFile
@@ -36,10 +37,10 @@ export class LocalStorageFileSystem extends VirtualFileSystem {
   }
 
   async open(path: string, mode: string = 'r'): Promise<FileStream> {
-    if (!/^[rwa]{1}$/.test(mode)) throw new Error('Invalid File Mode')
+    if (!/^[rwa]{1}$/.test(mode)) throw new InvalidFileModeError()
 
     if (mode.includes('r')) {
-      if (!await this.exist(path)) throw Error('File does not exist')
+      if (!await this.exist(path)) throw new FileDoesNotExistError()
       return this.openReadMode(path, mode)
     }
 
@@ -47,7 +48,7 @@ export class LocalStorageFileSystem extends VirtualFileSystem {
       return this.openWriteMode(path, mode)
     }
 
-    throw new Error('Invalid File Mode')
+    throw new InvalidFileModeError()
   }
 
   async readAllContent(path: string): Promise<string | null> {
@@ -60,7 +61,7 @@ export class LocalStorageFileSystem extends VirtualFileSystem {
   }
 
   async remove(path: string): Promise<void> {
-    if (!await this.exist(path)) throw Error('File does not exist')
+    if (!await this.exist(path)) throw new FileDoesNotExistError()
 
     delete this.index[path]
     this.saveIndex()
