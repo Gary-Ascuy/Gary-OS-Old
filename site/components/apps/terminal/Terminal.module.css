@@ -1,0 +1,48 @@
+.input {
+  background: transparent;
+  border: none !important;
+  width: 100%;
+  height: 100%;
+
+  color: white;
+  /* background: #1e1e1e; */
+  font-family: monospace;
+  font-size: 0.9rem;
+  resize: none;
+  outline: none;
+  text-indent: 16rem;
+  position: relative;
+}
+
+.ps1 {
+  position: absolute;
+  top: 2px;
+  left: 0px;
+
+  color: white;
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.input:active {
+  border: 1px solid red;
+}
+
+.output {
+  background: transparent;
+  border: none !important;
+  width: 100%;
+  height: 100%;
+
+  color: white;
+  font-family: monospace;
+  font-size: 0.9rem;
+  resize: none;
+  outline: none;
+  position: relative;
+  white-space: pre-line;
+}
+
+.output:active {
+  border: 1px solid red;
+}

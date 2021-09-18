@@ -1,0 +1,277 @@
+import { v4 as uuid } from 'uuid'
+import { EventEmitter } from 'events'
+
+import { KernelOptions } from './options/KernelOptions'
+import { ApplicationContext, ApplicationOptions, ApplicationType, TerminalApplication } from './options/ApplicationOptions'
+import { ProcessOptions } from './options/ProcessOptions'
+
+import { Process, ProcessResponse } from './models/Process'
+import { Application } from './models/Application'
+import { EnvironmentVariables } from './models/EnvironmentVariables'
+import { Alias } from './models/Alias'
+import { ApplicationNotFound } from './error/ApplicationNotFound'
+
+import './FileSystem'
+import { ApplicationAlreadyExist } from './error/ApplicationAlreadyExist'
+import { replaceEnvVariables } from './Utils'
+import format from 'date-fns/format'
+import { addMinutes } from 'date-fns'
+
+export default class Kernel extends EventEmitter {
+  private static __instance?: Kernel = undefined
+
+  constructor(
+    private options: KernelOptions = { env: { HOME: '/root/gary' }, alias: {} },
+    private applications: { [key: string]: Application } = {},
+    private processes: { [key: string]: Process } = {},
+  ) {
+    super()
+  }
+
+  get EnvironmentVariables(): EnvironmentVariables {
+    return this.options.env
+  }
+
+  get Alias(): Alias {
+    return this.options.alias
+  }
+
+  get Applications(): Application[] {
+    return Object.values(this.applications)
+  }
+
+  get Processes(): Process[] {
+    return Object.values(this.processes)
+  }
+
+  async load(): Promise<void> {
+    this.emit('loading', 0)
+
+    const echo: TerminalApplication = {
+      type: ApplicationType.Terminal,
+      metadata: {
+        identifier: 'echo',
+        name: 'Echo',
+        version: '1.0.0',
+        authors: [{ name: 'Gary Ascuy', email: 'gary.ascuy@gmail.com' }],
+      },
+      main: async (context: ApplicationContext) => {
+        const { process } = context
+        const writer = context.process.options.stdout?.getWriter()
+        writer?.write(process.options.arguments.join(' '))
+        writer?.close()
+        return 0
+      }
+    }
+    this.install(echo)
+
+    const env: TerminalApplication = {
+      type: ApplicationType.Terminal,
+      metadata: {
+        identifier: 'env',
+        name: 'Env',
+        version: '1.0.0',
+        authors: [{ name: 'Gary Ascuy', email: 'gary.ascuy@gmail.com' }],
+      },
+      main: async (context: ApplicationContext) => {
+        const { stdout } = context.process.options
+        const writer = stdout?.getWriter()
+        const { env } = context.process
+        for (const key of Object.keys(env)) {
+          writer?.write(`${key}=${env[key]}`)
+          console.log(`${key}=${env[key]}`)
+        }
+        writer?.close()
+        return 0
+      }
+    }
+    this.install(env)
+
+    const uppercase: TerminalApplication = {
+      type: ApplicationType.Terminal,
+      metadata: {
+        identifier: 'uppercase',
+        name: 'UpperCase',
+        version: '1.0.0',
+        authors: [{ name: 'Gary Ascuy', email: 'gary.ascuy@gmail.com' }],
+      },
+      main: async (context: ApplicationContext) => {
+        const { stdout, stdin } = context.process.options
+        const writer = stdout?.getWriter()
+        const reader = stdin?.getReader()
+
+        while (reader && writer) {
+          const { done, value } = await reader.read()
+          if (done) break
+          writer.write(`${value}`.toUpperCase())
+          console.log(`${value}`.toUpperCase())
+        }
+
+        writer?.close()
+        return 0
+      }
+    }
+    this.install(uppercase)
+
+    const lowercase: TerminalApplication = {
+      type: ApplicationType.Terminal,
+      metadata: {
+        identifier: 'lowercase',
+        name: 'LowerCase',
+        version: '1.0.0',
+        authors: [{ name: 'Gary Ascuy', email: 'gary.ascuy@gmail.com' }],
+      },
+      main: async (context: ApplicationContext) => {
+        const { stdout, stdin } = context.process.options
+        const writer = stdout?.getWriter()
+        const reader = stdin?.getReader()
+
+        while (reader && writer) {
+          const { done, value } = await reader.read()
+          if (done) break
+          writer.write(`${value}`.toLowerCase())
+          console.log(`${value}`.toLowerCase())
+        }
+
+        writer?.close()
+        return 0
+      }
+    }
+    this.install(lowercase)
+
+    const date: TerminalApplication = {
+      type: ApplicationType.Terminal,
+      metadata: {
+        identifier: 'date',
+        name: 'Date',
+        version: '1.0.0',
+        authors: [{ name: 'Gary Ascuy', email: 'gary.ascuy@gmail.com' }],
+      },
+      main: async (context: ApplicationContext) => {
+        const { stdout, arguments: argvs } = context.process.options
+        const writer = stdout?.getWriter()
+
+        const hasFormat = argvs.length > 1 && (argvs.includes('--format') || argvs.includes('-f'))
+        const [customFormat] = argvs.reverse()
+        const message = format(new Date(), hasFormat ? customFormat : 'eee MMM dd HH:mm:ss OOOO yyyy')
+        writer?.write(message)
+        writer?.close()
+        return 0
+      }
+    }
+    this.install(date)
+
+    this.emit('loading', 100)
+  }
+
+  async build(options: ApplicationOptions): Promise<Application> {
+    const application: Application = { aid: options.metadata.identifier, type: options.type, options }
+    return application
+  }
+
+  // TODO: Validate auth/certs to install applications
+  async install(options: ApplicationOptions): Promise<Application> {
+    if (!!this.applications[options.metadata.identifier]) throw new ApplicationAlreadyExist()
+
+    const app: Application = await this.build(options)
+    this.applications[app.aid] = app
+    this.emit('install', app)
+    return app
+  }
+
+  async uninstall(aid: string): Promise<Application> {
+    const app = this.applications[aid]
+    if (!app) throw new ApplicationNotFound()
+
+    delete this.applications[aid]
+    this.emit('uninstall', app)
+    return app
+  }
+
+  async registerEnvironmentVariable(key: string, value: string) {
+    this.options.env[key] = value
+    this.emit('registerEnvironmentVariable', { key, value })
+  }
+
+  async registerAlias(alias: string, identifier: string) {
+    this.options.alias[alias] = identifier
+    this.emit('registerAlias', { alias, identifier })
+  }
+
+  async getApplication(aidOrAlias: string): Promise<Application> {
+    const application = this.applications[aidOrAlias] || this.applications[this.options.alias[aidOrAlias]]
+
+    if (!application) throw new ApplicationNotFound()
+    return application
+  }
+
+  async open(options: ProcessOptions, _application?: Application): Promise<number> {
+    const pid = uuid()
+    const application = _application ? _application : await this.getApplication(options.command)
+
+    const env = { ...this.options.env, ...options.env }
+    for (const key of Object.keys(options.env)) {
+      env[key] = replaceEnvVariables(env[key], env)
+    }
+    options.arguments = options.arguments.map((value) => replaceEnvVariables(value, env))
+
+    const process: Process = { pid, env, options, application }
+    this.processes[pid] = process
+    this.emit('open', process)
+
+    const context: ApplicationContext = { pid, kernel: await Kernel.getInstance(), process }
+    if (application.type === ApplicationType.Terminal) {
+      const terminal: TerminalApplication = application.options as TerminalApplication
+      const code = await terminal.main(context)
+      return code
+    }
+
+    return ProcessResponse.SUCCESS
+  }
+
+  async kill(pid: string) {
+    const process = this.processes[pid]
+    delete this.processes[pid]
+    this.emit('kill', process)
+  }
+
+  static async getInstance(isUnitTest: boolean = false): Promise<Kernel> {
+    if (isUnitTest) {
+      const kernel = new Kernel()
+      await kernel.load()
+      return kernel
+    }
+
+    if (!Kernel.__instance) {
+      Kernel.__instance = new Kernel()
+      await Kernel.__instance.load()
+    }
+
+    return Kernel.__instance
+  }
+}
+
+export async function open(options: ProcessOptions) {
+  const kernel = await Kernel.getInstance()
+  return kernel.open(options)
+}
+
+export async function kill(pid: string) {
+  const kernel = await Kernel.getInstance()
+  return kernel.kill(pid)
+}
+
+export async function install(options: ApplicationOptions) {
+  const kernel = await Kernel.getInstance()
+  return kernel.install(options)
+}
+
+
+export async function uninstall(aid: string) {
+  const kernel = await Kernel.getInstance()
+  return kernel.uninstall(aid)
+}
+
+export function useKernel() {
+  return { open, kill, install, uninstall }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@garyos/all",
+  "description": "Gary Operation System",
+  "author": "Gary Ascuy <gary.ascuy@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/core/virtual-filesystem"
+  ],
+  "scripts": {
+    "info": "yarn workspaces run info",
+    "test": "yarn workspaces run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gary-Ascuy/gary-os.git"
+  },
+  "keywords": [
+    "os",
+    "virtual",
+    "garyos",
+    "gos",
+    "react"
+  ],
+  "bugs": {
+    "url": "https://github.com/Gary-Ascuy/gary-os/issues"
+  },
+  "homepage": "https://github.com/Gary-Ascuy/gary-os#readme"
+}
