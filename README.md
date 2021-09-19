@@ -13,3 +13,19 @@ TBD
 ### File System Architecture
 
 ![FileSystem Architecture](https://docs.google.com/drawings/d/1MmX5D0Ub24ifzQzs3tWR7nqnjXTo3f-xdEh9DQjLWk0/export/svg)
+
+Code Example
+
+```ts
+import { FileSystemManager } from '@garyos/filesystem'
+
+const fs: FileSystemManager = new FileSystemManager()
+await manager.mount()
+
+const file = await fs.open(path, 'w') as WritableStream
+const writer = file.getWriter()
+
+await writer.write('FirstLine\n')
+await writer.write('SecondLine\n')
+await writer.close()
+```
