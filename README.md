@@ -8,7 +8,7 @@ Gary OS (gOS) is a web based operation system that simulate base functionalities
 
 ### Process Architecture
 
-TBD
+![FileSystem Architecture](https://docs.google.com/drawings/d/1EliGOwXV4tWl2-ztheYHi1927YtWE5PrXNhkJXmn0PY/export/svg)
 
 ### File System Architecture
 
