@@ -5,10 +5,11 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "packages/core/virtual-filesystem"
+    "packages/core/*"
   ],
   "scripts": {
-    "info": "yarn workspaces run info",
+    "ws": "yarn workspaces",
+    "ls": "yarn workspaces info",
     "test": "yarn workspaces run test"
   },
   "repository": {
