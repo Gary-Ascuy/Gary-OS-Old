@@ -1,0 +1,17 @@
+{
+  "name": "@garyos/process",
+  "version": "0.0.1",
+  "description": "GaryOS - Process Manager",
+  "main": "lib/main.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "garyos",
+    "gos",
+    "process",
+    "manager"
+  ],
+  "author": "Gary Ascuy <gary.ascuy@gmail.com>",
+  "license": "MIT"
+}
