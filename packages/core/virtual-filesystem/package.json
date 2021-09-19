@@ -1,12 +1,13 @@
 {
   "name": "@garyos/filesystem",
-  "version": "1.0.0",
-  "description": "Gary OS - Virtual File System (Memory | LocalStorage | GitHub:ReadOnly )",
+  "version": "0.0.3",
+  "description": "GaryOS - FileSystem ( Memory | LocalStorage | GitHub )",
   "main": "./lib/main.js",
   "types": "./lib/main.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "prepublish": "yarn build"
   },
   "keywords": [
     "garyos",
@@ -16,6 +17,9 @@
   ],
   "author": "Gary Ascuy <gary.ascuy@gmail.com>",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@types/jest": "^27.0.1",
     "@types/lodash": "^4.14.172",
