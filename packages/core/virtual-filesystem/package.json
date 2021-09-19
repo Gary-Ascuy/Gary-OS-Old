@@ -12,8 +12,8 @@
   "keywords": [
     "garyos",
     "gos",
-    "virtual",
-    "filesystem"
+    "filesystem",
+    "manager"
   ],
   "author": "Gary Ascuy <gary.ascuy@gmail.com>",
   "license": "MIT",

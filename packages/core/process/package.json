@@ -3,8 +3,11 @@
   "version": "0.0.1",
   "description": "GaryOS - Process Manager",
   "main": "lib/main.js",
+  "types": "./lib/main.d.ts",
   "scripts": {
-    "test": "jest"
+    "build": "tsc",
+    "test": "jest",
+    "prepublish": "yarn build"
   },
   "keywords": [
     "garyos",
@@ -13,5 +16,14 @@
     "manager"
   ],
   "author": "Gary Ascuy <gary.ascuy@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.1",
+    "jest": "^27.2.0",
+    "ts-jest": "^27.0.5",
+    "typescript": "^4.4.3"
+  }
 }
