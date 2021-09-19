@@ -1,4 +1,4 @@
-## Gary Operation System - Web Based
+## Gary OS - Web Based Operation System
 
 Gary OS (gOS) is a web based operation system that simulate base functionalities from *nix and MacOS theme
 
