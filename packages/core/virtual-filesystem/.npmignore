@@ -1,0 +1,15 @@
+# Library Files
+!lib/**/*.js
+!lib/**/*.d.ts
+!lib/**/*.map.ts
+
+**/*.test.js
+**/*.test.d.ts
+**/*.test.d.ts.map
+
+# Base Code Folders
+src/
+
+# Base Code Files
+jest.config.js
+.editorconfig
