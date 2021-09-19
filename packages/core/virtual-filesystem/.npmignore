@@ -13,3 +13,4 @@ src/
 # Base Code Files
 jest.config.js
 .editorconfig
+tsconfig.json

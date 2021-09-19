@@ -1,6 +1,6 @@
 {
   "name": "@garyos/filesystem",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "GaryOS - FileSystem ( Memory | LocalStorage | GitHub )",
   "main": "./lib/main.js",
   "types": "./lib/main.d.ts",
