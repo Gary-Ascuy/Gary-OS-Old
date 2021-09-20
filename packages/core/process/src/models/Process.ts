@@ -1,14 +1,7 @@
 import { Application } from './Application'
 import { EnvironmentVariables } from './EnvironmentVariables'
 
-export interface Process {
-  /**
-   * Process Identifier (UUID v4)
-   *
-   * @example 'd501d580-87f4-4e26-a99b-ad0d1d24c999'
-   */
-  pid: string
-
+export interface ProcessOptions {
   /**
    * Environment Variables
    *
@@ -31,10 +24,19 @@ export interface Process {
    * @example ['echo', 'Gary', 'Ascuy', 'Anturiano']
    */
   argv: string[]
+}
+
+export interface Process extends ProcessOptions {
+  /**
+   * Process Identifier (UUID v4)
+   *
+   * @example 'd501d580-87f4-4e26-a99b-ad0d1d24c999'
+   */
+  pid: string
 
   /**
-   * Event Emitter
-   */
+  * Event Emitter
+  */
   on(name: string, callback: Function): Promise<void>
   emit(name: string, ...args: string[]): void
 
