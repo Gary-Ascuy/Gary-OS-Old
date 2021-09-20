@@ -1,4 +1,5 @@
-import { buildProcessOptions, parse, replaceEnvVariables, replaceInputOutputRedirection } from './CommandParser'
+import { buildProcessOptions, buildSequence, checkSequence, parse, replaceEnvVariables, replaceInputOutputRedirection } from './CommandParser'
+import { ProcessOptions } from './models'
 
 describe('CommandParser.ts', () => {
   describe('.replaceEnvVariables()', () => {
@@ -445,6 +446,175 @@ describe('CommandParser.ts', () => {
 
       const [p1] = commands
       expect(p1).toEqual({ argv: ['echo', 'Gary'], env: { a: 'test' }, execPath: '/b' })
+    })
+  })
+
+  describe('.checkSequence()', () => {
+    test('should check a valid sequence', () => {
+      const sequence = checkSequence([
+        { argv: ['echo', 'test'], env: {}, execPath: '' },
+      ])
+
+      expect(sequence).toBeDefined()
+      expect(sequence[0]).toEqual({ argv: ['echo', 'test'], env: {}, execPath: '' })
+    })
+
+    test('should check a valid long sequence', () => {
+      const sequence = checkSequence([
+        { argv: ['echo', 'test'], env: {}, execPath: '' },
+        { argv: ['|'], env: {}, execPath: '' },
+        { argv: ['echo', 'test'], env: {}, execPath: '' },
+        { argv: ['|'], env: {}, execPath: '' },
+        { argv: ['echo', 'test'], env: {}, execPath: '' },
+        { argv: ['|'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+      ])
+
+      expect(sequence).toBeDefined()
+      expect(sequence[0]).toEqual({ argv: ['echo', 'test'], env: {}, execPath: '' })
+      expect(sequence[1]).toEqual({ argv: ['|'], env: {}, execPath: '' })
+      expect(sequence[6]).toEqual({ argv: ['echo', 'test gary'], env: {}, execPath: '' })
+    })
+
+    test('should throw an error with an invalid long sequence - two consecutive pipe operators', () => {
+      expect(() => {
+        const sequence = checkSequence([
+          { argv: ['echo', 'test'], env: {}, execPath: '' },
+          { argv: ['|'], env: {}, execPath: '' },
+          { argv: ['|'], env: {}, execPath: '' },
+          { argv: ['echo', 'test'], env: {}, execPath: '' },
+          { argv: ['|'], env: {}, execPath: '' },
+          { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+        ])
+
+        expect(sequence).toBeDefined()
+      }).toThrowError()
+    })
+
+    test('should throw an error with an invalid long sequence - two consecutive commands', () => {
+      expect(() => {
+        const sequence = checkSequence([
+          { argv: ['echo', 'test'], env: {}, execPath: '' },
+          { argv: ['|'], env: {}, execPath: '' },
+          { argv: ['echo', 'test'], env: {}, execPath: '' },
+          { argv: ['echo', 'test'], env: {}, execPath: '' },
+          { argv: ['|'], env: {}, execPath: '' },
+          { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+        ])
+
+        expect(sequence).toBeDefined()
+      }).toThrowError()
+    })
+
+    test('should throw an error with an invalid long sequence - start with pipe', () => {
+      expect(() => {
+        const sequence = checkSequence([
+          { argv: ['|'], env: {}, execPath: '' },
+          { argv: ['echo', 'test'], env: {}, execPath: '' },
+          { argv: ['|'], env: {}, execPath: '' },
+          { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+        ])
+
+        expect(sequence).toBeDefined()
+      }).toThrowError()
+    })
+
+    test('should throw an error with an invalid long sequence - end with pipe', () => {
+      expect(() => {
+        const sequence = checkSequence([
+          { argv: ['echo', 'test'], env: {}, execPath: '' },
+          { argv: ['|'], env: {}, execPath: '' },
+          { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+          { argv: ['|'], env: {}, execPath: '' },
+        ])
+
+        expect(sequence).toBeDefined()
+      }).toThrowError()
+    })
+  })
+
+  describe('.buildSequence()', () => {
+    test('should build a basic sequence', () => {
+      const sequence = buildSequence([
+        { argv: ['echo', 'test'], env: {}, execPath: '' },
+      ])
+
+      expect(sequence.length).toBe(1)
+      expect((sequence[0] as Array<ProcessOptions>).length).toBe(1)
+    })
+
+    test('should build a sequence with one pipe', () => {
+      const sequence = buildSequence([
+        { argv: ['echo', 'test'], env: {}, execPath: '' },
+        { argv: ['|'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+      ])
+
+      expect(sequence.length).toBe(1)
+      expect((sequence[0] as Array<ProcessOptions>).length).toBe(3)
+    })
+
+    test('should build a sequence with long pipe', () => {
+      const sequence = buildSequence([
+        { argv: ['echo', 'test'], env: {}, execPath: '' },
+        { argv: ['|'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+        { argv: ['|'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+        { argv: ['|'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+        { argv: ['|'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+      ])
+
+      expect(sequence.length).toBe(1)
+      expect((sequence[0] as Array<ProcessOptions>).length).toBe(9)
+    })
+
+
+    test('should build a sequence with long pipe and one logical operator', () => {
+      const sequence = buildSequence([
+        { argv: ['echo', 'test'], env: {}, execPath: '' },
+        { argv: ['|'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+        { argv: ['&&'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+        { argv: ['|'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+        { argv: ['|'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+      ])
+
+      expect(sequence.length).toBe(3)
+
+      const [p1, _, p2] = sequence
+      expect((p1 as Array<ProcessOptions>).length).toBe(3)
+      expect(_).toEqual({ argv: ['&&'], env: {}, execPath: '' })
+      expect((p2 as Array<ProcessOptions>).length).toBe(5)
+    })
+
+    test('should build a sequence with long pipe and two logical operator', () => {
+      const sequence = buildSequence([
+        { argv: ['echo', 'test'], env: {}, execPath: '' },
+        { argv: ['|'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+        { argv: ['&&'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+        { argv: ['|'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+        { argv: ['||'], env: {}, execPath: '' },
+        { argv: ['echo', 'test gary'], env: {}, execPath: '' },
+      ])
+
+      expect(sequence.length).toBe(5)
+
+      const [p1, _1, p2, _2, p3] = sequence
+
+      expect((p1 as Array<ProcessOptions>).length).toBe(3)
+      expect(_1).toEqual({ argv: ['&&'], env: {}, execPath: '' })
+      expect((p2 as Array<ProcessOptions>).length).toBe(3)
+      expect(_2).toEqual({ argv: ['||'], env: {}, execPath: '' })
+      expect((p3 as Array<ProcessOptions>).length).toBe(1)
     })
   })
 })

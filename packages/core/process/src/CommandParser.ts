@@ -101,7 +101,55 @@ export function parse(lines: string, pwd: string = ''): ProcessOptions[] {
 
   if (cache.length > 0) commands.push(cache)
   const options = commands.map(command => buildProcessOptions(command, pwd))
-  return replaceInputOutputRedirection(options)
+  const resolvedOptions = replaceInputOutputRedirection(options)
+
+  return checkSequence(resolvedOptions)
+}
+
+export function checkSequence(options: ProcessOptions[]): ProcessOptions[] {
+  if (!options || options.length === 0) throw new Error('Invalid Pipeline Sequence')
+
+  let index = 0
+  for (const option of options) {
+    const [cmd] = option.argv
+    const isPipeOperator = PIPE_OPERATORS.includes(cmd)
+    const shouldBeCmd = index % 2 === 0
+    if (shouldBeCmd && isPipeOperator) throw new Error('Invalid Pipeline Sequence')
+    if (!cmd) throw new Error('Command should be defined')
+
+    ++index
+  }
+
+  // does not end with pipe operator
+  const [cmd] = options[options.length - 1].argv
+  if (PIPE_OPERATORS.includes(cmd)) throw new Error('Invalid Pipeline Sequence')
+
+  return options
+}
+
+export type SequenceElement = ProcessOptions[] | ProcessOptions
+
+
+export function buildSequence(options: ProcessOptions[]): SequenceElement[] {
+  const results: SequenceElement[] = []
+  let executionBlock: ProcessOptions[] = []
+
+  for (const option of options) {
+    const [cmd] = option.argv
+
+    const isLogicalOperator = ['||', '&&'].includes(cmd)
+    if (isLogicalOperator) {
+      results.push(executionBlock)
+      results.push(option)
+      executionBlock = []
+      continue
+    }
+
+    executionBlock.push(option)
+  }
+
+  if (executionBlock.length > 0) results.push(executionBlock)
+  return results
 }
 
 /**
