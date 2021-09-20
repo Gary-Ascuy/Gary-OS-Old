@@ -1,4 +1,4 @@
-import { buildProcessOptions, parse, replaceEnvVariables } from './CommandParser'
+import { buildProcessOptions, parse, replaceEnvVariables, replaceInputOutputRedirection } from './CommandParser'
 
 describe('CommandParser.ts', () => {
   describe('.replaceEnvVariables()', () => {
@@ -250,51 +250,67 @@ describe('CommandParser.ts', () => {
     })
 
     test('should parse write command', () => {
-      const [options, pipe] = parse('echo "Test Data" > logs.txt')
+      const [options, _, pipe] = parse('echo "Test Data" > logs.txt')
 
       expect(options.argv).toEqual(['echo', 'Test Data'])
       expect(options.env).toEqual({})
       expect(options.execPath).toBe('')
 
-      expect(pipe.argv).toEqual(['>', 'logs.txt'])
+      expect(_.argv).toEqual(['|'])
+      expect(_.env).toEqual({})
+      expect(_.execPath).toBe('')
+
+      expect(pipe.argv).toEqual(['write', '--file', 'logs.txt'])
       expect(pipe.env).toEqual({})
       expect(pipe.execPath).toBe('')
     })
 
     test('should parse append command', () => {
-      const [options, pipe] = parse('echo "Test Data" >> logs.txt')
+      const [options, _, pipe] = parse('echo "Test Data" >> logs.txt')
 
       expect(options.argv).toEqual(['echo', 'Test Data'])
       expect(options.env).toEqual({})
       expect(options.execPath).toBe('')
 
-      expect(pipe.argv).toEqual(['>>', 'logs.txt'])
+      expect(_.argv).toEqual(['|'])
+      expect(_.env).toEqual({})
+      expect(_.execPath).toBe('')
+
+      expect(pipe.argv).toEqual(['write', '--append', '--file', 'logs.txt'])
       expect(pipe.env).toEqual({})
       expect(pipe.execPath).toBe('')
     })
 
     test('should parse read command', () => {
-      const [options, pipe] = parse('source -t << logs.txt')
+      const [pipe, _, options] = parse('source -t << logs.txt')
+
+      expect(pipe.argv).toEqual(['read', '--file', 'logs.txt'])
+      expect(pipe.env).toEqual({})
+      expect(pipe.execPath).toBe('')
+
+      expect(_.argv).toEqual(['|'])
+      expect(_.env).toEqual({})
+      expect(_.execPath).toBe('')
 
       expect(options.argv).toEqual(['source', '-t'])
       expect(options.env).toEqual({})
       expect(options.execPath).toBe('')
-
-      expect(pipe.argv).toEqual(['<<', 'logs.txt'])
-      expect(pipe.env).toEqual({})
-      expect(pipe.execPath).toBe('')
     })
 
     test('should parse read command', () => {
-      const [options, pipe] = parse('env --export << production.env')
+      const [pipe, _, options] = parse('env --export << production.env')
+
+      expect(pipe.argv).toEqual(['read', '--file', 'production.env'])
+      expect(pipe.env).toEqual({})
+      expect(pipe.execPath).toBe('')
+
+      expect(_.argv).toEqual(['|'])
+      expect(_.env).toEqual({})
+      expect(_.execPath).toBe('')
 
       expect(options.argv).toEqual(['env', '--export'])
       expect(options.env).toEqual({})
       expect(options.execPath).toBe('')
-
-      expect(pipe.argv).toEqual(['<<', 'production.env'])
-      expect(pipe.env).toEqual({})
-      expect(pipe.execPath).toBe('')
     })
 
     test('should parse a command with many options', () => {
@@ -321,6 +337,114 @@ describe('CommandParser.ts', () => {
       expect(p4.argv).toEqual(['test', '--verbose'])
       expect(p4.env).toEqual({})
       expect(p4.execPath).toBe('')
+    })
+  })
+
+  describe('.replaceInputOutputRedirection()', () => {
+    test('should replace ">" by pipe with write command', () => {
+      const commands = replaceInputOutputRedirection([
+        { argv: ['echo', 'Gary'], env: { a: 'test' }, execPath: '/b' },
+        { argv: ['>', 'gary.txt'], env: {}, execPath: '' },
+      ])
+
+      expect(commands.length).toBe(3)
+
+      const [p1, p2, p3] = commands
+      expect(p1).toEqual({ argv: ['echo', 'Gary'], env: { a: 'test' }, execPath: '/b' })
+      expect(p2).toEqual({ argv: ['|'], env: { a: 'test' }, execPath: '/b' })
+      expect(p3).toEqual({ argv: ['write', '--file', 'gary.txt'], env: { a: 'test' }, execPath: '/b' })
+    })
+
+    test('should replace ">>" by pipe with write command with append flag', () => {
+      const commands = replaceInputOutputRedirection([
+        { argv: ['echo', 'Gary'], env: { a: 'test' }, execPath: '/b' },
+        { argv: ['>>', 'gary.txt'], env: {}, execPath: '' },
+      ])
+
+      expect(commands.length).toBe(3)
+
+      const [p1, p2, p3] = commands
+      expect(p1).toEqual({ argv: ['echo', 'Gary'], env: { a: 'test' }, execPath: '/b' })
+      expect(p2).toEqual({ argv: ['|'], env: { a: 'test' }, execPath: '/b' })
+      expect(p3).toEqual({ argv: ['write', '--append', '--file', 'gary.txt'], env: { a: 'test' }, execPath: '/b' })
+    })
+
+    test('should throw an error with ">"', () => {
+      expect(() => {
+        const commands = replaceInputOutputRedirection([
+          { argv: ['>', 'gary.txt'], env: {}, execPath: '' },
+        ])
+        expect(commands).toBeUndefined()
+      }).toThrowError()
+    })
+
+    test('should throw an error with ">>"', () => {
+      expect(() => {
+        const commands = replaceInputOutputRedirection([
+          { argv: ['>>', 'gary.txt'], env: {}, execPath: '' },
+        ])
+        expect(commands).toBeUndefined()
+      }).toThrowError()
+    })
+
+    test('should omit ">" when file parameter is not defined', () => {
+      const commands = replaceInputOutputRedirection([
+        { argv: ['echo', 'Gary'], env: { a: 'test' }, execPath: '/b' },
+        { argv: ['>'], env: {}, execPath: '' },
+      ])
+
+      expect(commands.length).toBe(1)
+
+      const [p1] = commands
+      expect(p1).toEqual({ argv: ['echo', 'Gary'], env: { a: 'test' }, execPath: '/b' })
+    })
+
+    test('should omit ">>" when file parameter is not defined', () => {
+      const commands = replaceInputOutputRedirection([
+        { argv: ['echo', 'Gary'], env: { a: 'test' }, execPath: '/b' },
+        { argv: ['>>'], env: {}, execPath: '' },
+      ])
+
+      expect(commands.length).toBe(1)
+
+      const [p1] = commands
+      expect(p1).toEqual({ argv: ['echo', 'Gary'], env: { a: 'test' }, execPath: '/b' })
+    })
+
+    // READ
+    test('should replace "<" or "<<" by pipe with read command', () => {
+      const commands = replaceInputOutputRedirection([
+        { argv: ['echo', 'Gary'], env: { a: 'test' }, execPath: '/b' },
+        { argv: ['<', 'gary.txt'], env: {}, execPath: '' },
+      ])
+
+      expect(commands.length).toBe(3)
+
+      const [p1, p2, p3] = commands
+      expect(p1).toEqual({ argv: ['read', '--file', 'gary.txt'], env: { a: 'test' }, execPath: '/b' })
+      expect(p2).toEqual({ argv: ['|'], env: { a: 'test' }, execPath: '/b' })
+      expect(p3).toEqual({ argv: ['echo', 'Gary'], env: { a: 'test' }, execPath: '/b' })
+    })
+
+    test('should throw an error with "<<" or "<"', () => {
+      expect(() => {
+        const commands = replaceInputOutputRedirection([
+          { argv: ['<<', 'gary.txt'], env: {}, execPath: '' },
+        ])
+        expect(commands).toBeUndefined()
+      }).toThrowError()
+    })
+
+    test('should omit "<" or "<<" when file parameter is not defined', () => {
+      const commands = replaceInputOutputRedirection([
+        { argv: ['echo', 'Gary'], env: { a: 'test' }, execPath: '/b' },
+        { argv: ['<<'], env: {}, execPath: '' },
+      ])
+
+      expect(commands.length).toBe(1)
+
+      const [p1] = commands
+      expect(p1).toEqual({ argv: ['echo', 'Gary'], env: { a: 'test' }, execPath: '/b' })
     })
   })
 })

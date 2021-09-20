@@ -4,7 +4,12 @@ import { EnvironmentVariables } from './models/EnvironmentVariables'
 import { ProcessOptions } from './models/Process'
 
 export const PIPE_OPERATORS = ['|', '||', '&', '&&']
-export const OPERATORS = [...PIPE_OPERATORS, '>', '>>', '<', '<<']
+
+export const INPUT_REDIRECTION = ['<', '<<']
+export const OUTPUT_REDIRECTION = ['>', '>>']
+export const INPUT_OUTPUT_REDIRECTION = [...INPUT_REDIRECTION, ...OUTPUT_REDIRECTION]
+
+export const OPERATORS = [...PIPE_OPERATORS, ...INPUT_OUTPUT_REDIRECTION]
 
 export function replaceEnvVariables(input: string, env: EnvironmentVariables) {
   const varNames = '[a-zA-Z_]+[a-zA-Z0-9_]*'
@@ -95,5 +100,54 @@ export function parse(lines: string, pwd: string = ''): ProcessOptions[] {
   }
 
   if (cache.length > 0) commands.push(cache)
-  return commands.map(command => buildProcessOptions(command, pwd))
+  const options = commands.map(command => buildProcessOptions(command, pwd))
+  return replaceInputOutputRedirection(options)
+}
+
+/**
+ * Resolves Input and Output Redirections
+ *
+ * @example echo gary > gary.txt ==> echo gary | write --file gary.txt
+ * @example echo gary >> gary.txt ==> echo gary | write --append --file gary.txt
+ *
+ * @example echo gary < gary.txt ==> echo gary | read --file gary.txt
+ * @example echo gary << gary.txt ==> echo gary | read --file gary.txt
+ *
+ * @param options list of commands
+ * @returns list of commands
+ */
+export function replaceInputOutputRedirection(options: ProcessOptions[]) {
+  const results: ProcessOptions[] = []
+  let prev: ProcessOptions | undefined = undefined
+
+  for (const option of options) {
+    const [cmd, file] = option.argv
+
+    if (OUTPUT_REDIRECTION.includes(cmd)) {
+      if (!file) continue
+      if (!prev) throw new Error('Invalid Pipeline Output Redirection')
+
+      results.push({ argv: ['|'], env: { ...prev.env }, execPath: prev.execPath })
+      const argv = cmd === '>>' ? ['write', '--append', '--file', file] : ['write', '--file', file]
+      results.push({ argv: argv, env: { ...prev.env }, execPath: prev.execPath })
+      continue
+    }
+
+    if (INPUT_REDIRECTION.includes(cmd)) {
+      if (!file) continue
+      if (!prev) throw new Error('Invalid Pipeline Input Redirection')
+      results.pop()
+
+      results.push({ argv: ['read', '--file', file], env: { ...prev.env }, execPath: prev.execPath })
+      results.push({ argv: ['|'], env: { ...prev.env }, execPath: prev.execPath })
+      results.push(prev)
+
+      continue
+    }
+
+    prev = option
+    results.push(option)
+  }
+
+  return results
 }
