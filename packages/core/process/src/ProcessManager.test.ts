@@ -199,5 +199,26 @@ describe('ProcessManager.ts', () => {
       expect(io.getStdOut()).resolves.toBe('First Name')
       return expect(execution).resolves.toBe(AppicationMainResponse.SUCCESS)
     })
+
+    test('should pipe many greps', async () => {
+      const io = new MockStream([
+        'gary.zip\n',
+        'gary_ascuy.png\n',
+        'finalgary_ascuy.png\n',
+        'figary_ascuy.zip\n',
+        'final.zip\n',
+        'gary_test.zip\n',
+      ])
+      io.init()
+
+      const options: ProcessOptions[] = [
+        { argv: 'grep .zip'.split(' '), env: {}, execPath: '' },
+        { argv: 'grep --pattern ^gary'.split(' '), env: {}, execPath: '' },
+      ]
+      const execution = pm.pipeline(options, io, env)
+
+      expect(io.getStdOut()).resolves.toBe('gary.zip\ngary_test.zip\n')
+      return expect(execution).resolves.toBe(AppicationMainResponse.SUCCESS)
+    })
   })
 })

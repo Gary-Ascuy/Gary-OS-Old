@@ -147,6 +147,7 @@ export class MockApplicationLoader extends ApplicationLoader {
       const flags = args['--flags'] ?? ''
       if (!pattern) return AppicationMainResponse.FAILURE
 
+      // --file gary.txt if (!file) use stdin
       const regexp = new RegExp(pattern, flags)
       const writer = stdout.getWriter()
       const reader = stdin.getReader()
