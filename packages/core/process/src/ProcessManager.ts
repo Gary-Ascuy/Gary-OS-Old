@@ -13,16 +13,22 @@ export class ProcessManager {
 
   async execute(options: ProcessOptions, streams: IOStream, system: EnvironmentVariables): Promise<number> {
     try {
-      const [identifier] = options.argv
+      const [identifier, ...args] = options.argv
       const application = this.loader.get(identifier)
 
+      // env variables
       const env = { ...system, ...options.env }
       for (const key of Object.keys(options.env)) {
         env[key] = replaceEnvVariables(env[key], env)
       }
 
+      // arguments
+      const params = args.map((value) => replaceEnvVariables(value, env))
+      const argv = [identifier, ...params]
+
+      // process
       const pid = uuid()
-      const process: Process = { ...options, ...streams, pid, application, env }
+      const process: Process = { ...options, ...streams, pid, application, env, argv }
       system.DEBUG && console.log(process)
 
       return application.main({ pid, process })

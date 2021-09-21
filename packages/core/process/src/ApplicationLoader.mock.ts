@@ -12,6 +12,10 @@ export class MockApplicationLoader extends ApplicationLoader {
   }
 
   init() {
+    this.install(this.success())
+    this.install(this.failure())
+    this.install(this.error())
+
     this.install(this.echo())
     this.install(this.env())
   }
@@ -22,6 +26,21 @@ export class MockApplicationLoader extends ApplicationLoader {
     // alias
     const alias = application.name.toLowerCase()
     this.apps[alias] = application
+  }
+
+  success(): Application {
+    const main = async () => AppicationMainResponse.SUCCESS
+    return { ...this.metadata('com.garyos.success'), main }
+  }
+
+  failure(): Application {
+    const main = async () => AppicationMainResponse.FAILURE
+    return { ...this.metadata('com.garyos.failure'), main }
+  }
+
+  error(): Application {
+    const main = async () => AppicationMainResponse.ERROR
+    return { ...this.metadata('com.garyos.error'), main }
   }
 
   echo(): Application {
@@ -41,7 +60,7 @@ export class MockApplicationLoader extends ApplicationLoader {
     const main = async ({ process: { env, stdout } }: ApplicationContext) => {
       const writer = stdout.getWriter()
       for (const key of Object.keys(env)) {
-        await writer.write(`${key}=${env[key]}`)
+        await writer.write(`${key}=${env[key]}\n`)
       }
       await writer.close()
 
