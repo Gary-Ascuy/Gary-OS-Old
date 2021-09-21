@@ -47,10 +47,10 @@ describe('ProcessManager.ts', () => {
     })
 
     test('should execute an application that uses stdout with variables', async () => {
-      const options: ProcessOptions = { argv: ['echo', 'P1', '${USER}', 'P2'], env: { PATTERN: '*.txt' }, execPath: '' }
+      const options: ProcessOptions = { argv: ['echo', 'P1', '${USER}', 'P2', '$CI'], env: { PATTERN: '*.txt', CI: '1' }, execPath: '' }
       const execution = pm.execute(options, io, env)
 
-      expect(io.getStdOut()).resolves.toBe('P1 gary P2')
+      expect(io.getStdOut()).resolves.toBe('P1 gary P2 1')
       return expect(execution).resolves.toBe(AppicationMainResponse.SUCCESS)
     })
 
