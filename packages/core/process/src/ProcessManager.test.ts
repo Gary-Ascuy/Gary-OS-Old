@@ -38,6 +38,27 @@ describe('ProcessManager.ts', () => {
       return expect(execution).resolves.toBe(AppicationMainResponse.ERROR)
     })
 
+    test('should execute an application that uses stdin', async () => {
+      const options: ProcessOptions = { argv: ['grep', 'gary'], env: {}, execPath: '' }
+      const io = new MockStream(['gary ascuy\n', 'tejon gary\n', 'camila tejada\n'])
+      io.init()
+      const execution = pm.execute(options, io, env)
+
+      expect(io.getStdOut()).resolves.toBe('gary ascuy\ntejon gary\n')
+      return expect(execution).resolves.toBe(AppicationMainResponse.SUCCESS)
+    })
+
+    test('should execute an application that uses stdin using arguments in diferent order', async () => {
+      const cmd = 'grep unused parameter -f i --pattern gary'
+      const options: ProcessOptions = { argv: cmd.split(' '), env: {}, execPath: '' }
+      const io = new MockStream(['gary ascuy\n', 'tejon Gary\n', 'camila tejada\n', 'TestGARY\n'])
+      io.init()
+      const execution = pm.execute(options, io, env)
+
+      expect(io.getStdOut()).resolves.toBe('gary ascuy\ntejon Gary\nTestGARY\n')
+      return expect(execution).resolves.toBe(AppicationMainResponse.SUCCESS)
+    })
+
     test('should execute an application that uses stdout', async () => {
       const options: ProcessOptions = { argv: ['echo', 'gary'], env: {}, execPath: '' }
       const execution = pm.execute(options, io, env)

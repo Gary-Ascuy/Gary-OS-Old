@@ -22,6 +22,7 @@ export class MockApplicationLoader extends ApplicationLoader {
     this.install(this.uppercase())
     this.install(this.lowercase())
     this.install(this.removeLast())
+    this.install(this.grep())
   }
 
   install(application: Application) {
@@ -131,6 +132,53 @@ export class MockApplicationLoader extends ApplicationLoader {
       return AppicationMainResponse.SUCCESS
     }
     return { ...this.metadata('com.garyos.removelast'), main }
+  }
+
+  /**
+   * @example cat something.txt | grep gary
+   * @example cat something.txt | grep --pattern gary
+   * @example cat something.txt | grep --pattern "[a-zA-Z]+" --flags ig
+   */
+  grep(): Application {
+    const main = async ({ process: { argv, stdin, stdout } }: ApplicationContext) => {
+      const [_, criteria] = argv
+      const args = this.parse(argv, { '-p': '--pattern', '-f': '--flags' })
+      const pattern = args['--pattern'] ?? criteria
+      const flags = args['--flags'] ?? ''
+      if (!pattern) return AppicationMainResponse.FAILURE
+
+      const regexp = new RegExp(pattern, flags)
+      const writer = stdout.getWriter()
+      const reader = stdin.getReader()
+
+      let done
+      do {
+        const chunk = await reader.read()
+        if (chunk.value) {
+          const value = `${chunk.value ?? ''}`
+          if (regexp.test(value)) await writer.write(value)
+        }
+        done = chunk.done
+      } while (!done)
+      await writer.close()
+
+      return AppicationMainResponse.SUCCESS
+    }
+    return { ...this.metadata('com.garyos.grep'), main }
+  }
+
+  parse(args: string[], alias: { [key: string]: string }): { [key: string]: string } {
+    const result: { [key: string]: string } = {}
+    let index = 0
+
+    for (const arg of args) {
+      if (/^-?-\w+$/.test(arg)) {
+        result[alias[arg] ?? arg] = args[index + 1] ?? true
+      }
+      ++index
+    }
+
+    return result
   }
 
   metadata(identifier: string): Application {

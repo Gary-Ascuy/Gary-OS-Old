@@ -34,7 +34,6 @@ export class ProcessManager {
 
       return application.main({ pid, process })
     } catch (error) {
-      console.log(error)
       system.DEBUG && console.error(error)
       return AppicationMainResponse.ERROR
     }
