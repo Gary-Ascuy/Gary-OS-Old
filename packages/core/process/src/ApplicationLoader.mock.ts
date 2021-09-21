@@ -1,4 +1,4 @@
-import { TransformStream, ReadableStream, WritableStream } from 'web-streams-polyfill'
+import { TransformStream, ReadableStream, WritableStream, ReadableStreamDefaultReadResult } from 'web-streams-polyfill'
 
 import { ApplicationLoader } from './ApplicationLoader'
 import { AppicationMainResponse, Application, ApplicationAuthor, ApplicationContext, ApplicationType } from './models'
@@ -18,6 +18,10 @@ export class MockApplicationLoader extends ApplicationLoader {
 
     this.install(this.echo())
     this.install(this.env())
+
+    this.install(this.uppercase())
+    this.install(this.lowercase())
+    this.install(this.removeLast())
   }
 
   install(application: Application) {
@@ -67,6 +71,66 @@ export class MockApplicationLoader extends ApplicationLoader {
       return AppicationMainResponse.SUCCESS
     }
     return { ...this.metadata('com.garyos.env'), main }
+  }
+
+  uppercase(): Application {
+    const main = async ({ process: { env, stdin, stdout } }: ApplicationContext) => {
+      const writer = stdout.getWriter()
+      const reader = stdin.getReader()
+
+      let done
+      do {
+        const chunk = await reader.read()
+        if (chunk.value) await writer.write(`${chunk.value ?? ''}`.toUpperCase())
+        done = chunk.done
+      } while (!done)
+      await writer.close()
+
+      return AppicationMainResponse.SUCCESS
+    }
+    return { ...this.metadata('com.garyos.uppercase'), main }
+  }
+
+  lowercase(): Application {
+    const main = async ({ process: { env, stdin, stdout } }: ApplicationContext) => {
+      const writer = stdout.getWriter()
+      const reader = stdin.getReader()
+
+      let done
+      do {
+        const chunk = await reader.read()
+        if (chunk.value) await writer.write(`${chunk.value ?? ''}`.toLowerCase())
+        done = chunk.done
+      } while (!done)
+      await writer.close()
+
+      return AppicationMainResponse.SUCCESS
+    }
+    return { ...this.metadata('com.garyos.lowercase'), main }
+  }
+
+  removeLast(): Application {
+    const main = async ({ process: { env, stdin, stdout } }: ApplicationContext) => {
+      const writer = stdout.getWriter()
+      const reader = stdin.getReader()
+
+      let done
+      do {
+        const chunk = await reader.read()
+        if (chunk.value) {
+          const value = `${chunk.value ?? ''}`
+          const words = value.split(/\W/)
+          if (words.length > 0) words.pop()
+          await writer.write(words.join(' '))
+        }
+
+        done = chunk.done
+      } while (!done)
+      await writer.close()
+
+      return AppicationMainResponse.SUCCESS
+    }
+    return { ...this.metadata('com.garyos.removelast'), main }
   }
 
   metadata(identifier: string): Application {

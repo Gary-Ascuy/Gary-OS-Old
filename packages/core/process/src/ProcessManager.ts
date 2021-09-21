@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid'
+import { TransformStream, ReadableStream, WritableStream } from 'web-streams-polyfill'
 
 import { ApplicationLoader } from './ApplicationLoader'
 import { buildSequence, parse, replaceEnvVariables, SequenceElement } from './CommandParser'
@@ -39,6 +40,34 @@ export class ProcessManager {
     }
   }
 
+  buildPipelineStreams(options: ProcessOptions[], io: IOStream) {
+    let pipe: TransformStream = new TransformStream()
+    let stdin: ReadableStream = io.stdin
+    const stderr: WritableStream = io.stderr
+
+    const length = options.length
+    const streams = options.map((_, index: number) => {
+      const stdout = index === (length - 1) ? io.stdout : pipe.writable
+      const stream: IOStream = { stderr, stdin, stdout }
+
+      stdin = pipe.readable
+      pipe = new TransformStream()
+      return stream
+    })
+
+    return streams
+  }
+
+  async pipeline(options: ProcessOptions[], io: IOStream, system: EnvironmentVariables): Promise<number> {
+    const streams = this.buildPipelineStreams(options, io)
+    const processes = options
+      .map((option, index: number) => ({ option, io: streams[index] }))
+      .map(({ option, io }) => this.execute(option, io, system))
+
+    const codes = await Promise.all(processes)
+    return codes.pop() ?? AppicationMainResponse.ERROR
+  }
+
   // MISING IMPLE
   get(pid: string): Process {
     if (this.map[pid]) throw new Error('Process Does Not Exist')
@@ -63,23 +92,6 @@ export class ProcessManager {
     throw new Error('Not Implement Yet')
   }
 
-  // TODO Tests
-  async runPipeline(options: ProcessOptions[]/*, term_stdin, term_stdout, term_stderr */): Promise<number> {
-    // let { stdin, stdout, stderr } = std
-    const processes = options.map(option => {
-      // const process = this.execute(option/*, stdin=stdout*/)
-      // stdin = stdout
-      // stdout = new TrasformStream()
-      // stderr = term_stderr
-      // TODO fix asignations
-      // return process
-      return null
-    })
-
-    const codes = await Promise.all(processes)
-    return 0
-  }
-
   // TODO: update SequenceElement class
   async run(sequence: SequenceElement[]): Promise<number> {
     if (sequence && sequence.length === 0) throw new Error('Invalid Sequence')
@@ -87,7 +99,7 @@ export class ProcessManager {
     let code = 0
     for (const element of sequence) {
       if (Array.isArray(element)) {
-        code = await this.runPipeline(element as ProcessOptions[])
+        // code = await this.pipeline(element as ProcessOptions[])
         continue
       }
 
@@ -108,3 +120,4 @@ export class ProcessManager {
     return this.run(sequence)
   }
 }
+
