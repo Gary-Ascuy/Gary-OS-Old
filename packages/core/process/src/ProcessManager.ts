@@ -3,7 +3,7 @@ import { TransformStream, ReadableStream, WritableStream } from 'web-streams-pol
 
 import { ApplicationLoader } from './ApplicationLoader'
 import { buildSequence, parse, replaceEnvVariables, SequenceElement } from './CommandParser'
-import { AppicationMainResponse, EnvironmentVariables, Process, ProcessOptions } from './models'
+import { AppicationMainResponse, EnvironmentVariables, LogicalPipeline, Operator, Pipeline, Process, ProcessOptions, Task } from './models'
 import { IOStream } from './models/IOStream'
 
 export class ProcessManager {
@@ -12,14 +12,14 @@ export class ProcessManager {
     public map: { [key: string]: Process } = {},
   ) { }
 
-  async execute(options: ProcessOptions, streams: IOStream, system: EnvironmentVariables): Promise<number> {
+  async execute(task: Task, streams: IOStream, system: EnvironmentVariables): Promise<number> {
     try {
-      const [identifier, ...args] = options.argv
+      const [identifier, ...args] = task.argv
       const application = this.loader.get(identifier)
 
       // env variables
-      const env = { ...system, ...options.env }
-      for (const key of Object.keys(options.env)) {
+      const env = { ...system, ...task.env }
+      for (const key of Object.keys(task.env)) {
         env[key] = replaceEnvVariables(env[key], env)
       }
 
@@ -29,7 +29,7 @@ export class ProcessManager {
 
       // process
       const pid = uuid()
-      const process: Process = { ...options, ...streams, pid, application, env, argv }
+      const process: Process = { ...task, ...streams, pid, application, env, argv }
       system.DEBUG && console.log(process)
 
       return application.main({ pid, process })
@@ -39,13 +39,13 @@ export class ProcessManager {
     }
   }
 
-  buildPipelineStreams(options: ProcessOptions[], io: IOStream) {
+  buildPipelineStreams(pipeline: Pipeline, io: IOStream) {
     let pipe: TransformStream = new TransformStream()
     let stdin: ReadableStream = io.stdin
     const stderr: WritableStream = io.stderr
 
-    const length = options.length
-    const streams = options.map((_, index: number) => {
+    const length = pipeline.length
+    const streams = pipeline.map((_, index: number) => {
       const stdout = index === (length - 1) ? io.stdout : pipe.writable
       const stream: IOStream = { stderr, stdin, stdout }
 
@@ -57,14 +57,45 @@ export class ProcessManager {
     return streams
   }
 
-  async pipeline(options: ProcessOptions[], io: IOStream, system: EnvironmentVariables): Promise<number> {
-    const streams = this.buildPipelineStreams(options, io)
-    const processes = options
-      .map((option, index: number) => ({ option, io: streams[index] }))
-      .map(({ option, io }) => this.execute(option, io, system))
+  async pipeline(pipeline: Pipeline, io: IOStream, system: EnvironmentVariables): Promise<number> {
+    if (pipeline && pipeline.length === 0) throw new Error('Invalid Pipeline')
+
+    const streams = this.buildPipelineStreams(pipeline, io)
+    const processes = pipeline
+      .map((task, index: number) => ({ task, io: streams[index] }))
+      .map(({ task, io }) => this.execute(task, io, system))
 
     const codes = await Promise.all(processes)
     return codes.pop() ?? AppicationMainResponse.ERROR
+  }
+
+  /**
+   * Lazy Expression Evaluation
+   *
+   * @example Operator.AND
+   *  - false && X = false => Stop execution
+   *  - true  && X = X
+   *
+   * @example Operator.OR
+   *  - false || X = X
+   *  - true  || X = true => Stop execution
+   */
+  async logical(pipelines: LogicalPipeline, io: IOStream, system: EnvironmentVariables) {
+    if (pipelines && pipelines.length === 0) throw new Error('Invalid LogicalPipeline')
+
+    let code = 0
+    for (const pipeline of pipelines) {
+      if (Array.isArray(pipeline)) {
+        code = await this.pipeline(pipeline, io, system)
+        continue
+      }
+
+      const success = code === AppicationMainResponse.SUCCESS
+      if (!success && pipeline === Operator.AND) return code
+      if (success && pipeline === Operator.OR) return code
+    }
+
+    return code
   }
 
   // MISING IMPLE

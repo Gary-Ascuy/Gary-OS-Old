@@ -9,3 +9,4 @@ export * from './EnvironmentVariables'
 
 export * from './Application'
 export * from './Process'
+export * from './IOStream'

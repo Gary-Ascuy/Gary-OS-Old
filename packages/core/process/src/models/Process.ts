@@ -28,6 +28,13 @@ export interface ProcessOptions {
   argv: string[]
 }
 
+export enum Operator { OR = '||', AND = '&&', NOT = '!' }
+
+export type Task = ProcessOptions
+export type Pipeline = Array<Task>
+export type LogicalPipeline = Array<Pipeline | Operator>
+export type BackgroundTask = Array<LogicalPipeline>
+
 export interface Process extends ProcessOptions {
   /**
    * Process Identifier (UUID v4)
@@ -59,6 +66,4 @@ export interface Process extends ProcessOptions {
    */
   // kill(pid: string, signal: string): Promise<void>
   // exit(code: number): Promise<void>
-
-
 }
