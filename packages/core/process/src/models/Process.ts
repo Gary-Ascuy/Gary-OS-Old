@@ -1,3 +1,5 @@
+import { ReadableStream, WritableStream } from 'web-streams-polyfill'
+
 import { Application } from './Application'
 import { EnvironmentVariables } from './EnvironmentVariables'
 
@@ -35,19 +37,28 @@ export interface Process extends ProcessOptions {
   pid: string
 
   /**
-  * Event Emitter
-  */
-  on(name: string, callback: Function): Promise<void>
-  emit(name: string, ...args: string[]): void
-
-  /**
-   * Process Events
+   * Streams stdin | stdout | stderr
    */
-  kill(pid: string, signal: string): Promise<void>
-  exit(code: number): Promise<void>
+  stdin: ReadableStream
+  stdout: WritableStream
+  stderr: WritableStream
 
   /**
    * Base Application for process
    */
   application: Application
+
+  /**
+  * Event Emitter
+  */
+  // on(name: string, callback: Function): Promise<void>
+  // emit(name: string, ...args: string[]): void
+
+  /**
+   * Process Events
+   */
+  // kill(pid: string, signal: string): Promise<void>
+  // exit(code: number): Promise<void>
+
+
 }
