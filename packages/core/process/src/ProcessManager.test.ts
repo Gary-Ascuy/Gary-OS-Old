@@ -1,4 +1,4 @@
-import { AppicationMainResponse, EnvironmentVariables, Pipeline, ProcessOptions, Task } from './models'
+import { AppicationMainResponse, EnvironmentVariables, LogicalPipeline, Operator, Pipeline, ProcessOptions, Task } from './models'
 import { ProcessManager } from './ProcessManager'
 
 import { MockApplicationLoader, MockStream } from './ApplicationLoader.mock'
@@ -217,6 +217,60 @@ describe('ProcessManager.ts', () => {
 
       expect(io.getStdOut()).resolves.toBe('gary.zip\ngary_test.zip\n')
       return expect(execution).resolves.toBe(AppicationMainResponse.SUCCESS)
+    })
+  })
+
+  describe('.logical()', () => {
+    let io: MockStream
+    let TRUE: Pipeline = [{ argv: ['success'], env: {}, execPath: '' }]
+    let FALSE: Pipeline = [{ argv: ['failure'], env: {}, execPath: '' }]
+
+    beforeEach(() => {
+      pm = new ProcessManager(new MockApplicationLoader(), {})
+      env = { USER: 'gary', HOME: '/root/gary/' }
+      io = new MockStream([''])
+      io.init()
+    })
+
+    test.each([
+      ['TRUE  AND TRUE  = TRUE', TRUE, TRUE, AppicationMainResponse.SUCCESS],
+      ['TRUE  AND FALSE = FALSE', TRUE, FALSE, AppicationMainResponse.FAILURE],
+      ['FALSE AND TRUE  = FALSE', FALSE, TRUE, AppicationMainResponse.FAILURE],
+      ['FALSE AND FALSE = FALSE', FALSE, FALSE, AppicationMainResponse.FAILURE],
+    ])('should evaluate "%s" expression', (name: string, a: Pipeline, b: Pipeline, result: AppicationMainResponse) => {
+      const logical: LogicalPipeline = [a, Operator.AND, b]
+
+      const execution = pm.logical(logical, io, env)
+      return expect(execution).resolves.toBe(result)
+    })
+
+    // TRUE OR OR OR TRUE, HOW TEST LAZY EVALUATION
+    test.each([
+      ['TRUE  OR TRUE  = TRUE', TRUE, TRUE, AppicationMainResponse.SUCCESS],
+      ['TRUE  OR FALSE = TRUE', TRUE, FALSE, AppicationMainResponse.SUCCESS],
+      ['FALSE OR TRUE  = TRUE', FALSE, TRUE, AppicationMainResponse.SUCCESS],
+      ['FALSE OR FALSE = FALSE', FALSE, FALSE, AppicationMainResponse.FAILURE],
+    ])('should evaluate "%s" expression', (name: string, a: Pipeline, b: Pipeline, result: AppicationMainResponse) => {
+      const logical: LogicalPipeline = [a, Operator.OR, b]
+
+      const execution = pm.logical(logical, io, env)
+      return expect(execution).resolves.toBe(result)
+    })
+
+    test('should evaluate OR in lazy mode "TRUE || CRASH"', () => {
+      const crash = [{ argv: ['nonExistentApplication'], env: {}, execPath: '' }]
+
+      const logical: LogicalPipeline = [TRUE, Operator.OR, crash]
+      const execution = pm.logical(logical, io, env)
+      return expect(execution).resolves.toBe(AppicationMainResponse.SUCCESS)
+    })
+
+    test('should evaluate AND in lazy mode "FALSE && CRASH"', () => {
+      const crash = [{ argv: ['nonExistentApplication'], env: {}, execPath: '' }]
+
+      const logical: LogicalPipeline = [FALSE, Operator.AND, crash]
+      const execution = pm.logical(logical, io, env)
+      return expect(execution).resolves.toBe(AppicationMainResponse.FAILURE)
     })
   })
 })
