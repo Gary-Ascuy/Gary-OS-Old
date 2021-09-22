@@ -257,7 +257,7 @@ describe('ProcessManager.ts', () => {
       return expect(execution).resolves.toBe(result)
     })
 
-    test('should evaluate OR in lazy mode "TRUE || CRASH"', () => {
+    test('should evaluate OR in lazy mode "TRUE || CRASH = TRUE"', () => {
       const crash = [{ argv: ['nonExistentApplication'], env: {}, execPath: '' }]
 
       const logical: LogicalPipeline = [TRUE, Operator.OR, crash]
@@ -265,7 +265,7 @@ describe('ProcessManager.ts', () => {
       return expect(execution).resolves.toBe(AppicationMainResponse.SUCCESS)
     })
 
-    test('should evaluate AND in lazy mode "FALSE && CRASH"', () => {
+    test('should evaluate AND in lazy mode "FALSE && CRASH = FALSE"', () => {
       const crash = [{ argv: ['nonExistentApplication'], env: {}, execPath: '' }]
 
       const logical: LogicalPipeline = [FALSE, Operator.AND, crash]
