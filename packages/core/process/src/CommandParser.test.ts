@@ -1,5 +1,5 @@
-import { buildProcessOptions, buildSequence, checkSequence, parse, replaceEnvVariables, replaceInputOutputRedirection } from './CommandParser'
-import { ProcessOptions } from './models'
+import { buildProcessOptions, checkSequence, parse, replaceEnvVariables, replaceInputOutputRedirection } from './CommandParser'
+// import { ProcessOptions } from './models'
 
 describe('CommandParser.ts', () => {
   describe('.replaceEnvVariables()', () => {
@@ -533,7 +533,7 @@ describe('CommandParser.ts', () => {
     })
   })
 
-  describe('.buildSequence()', () => {
+  /**describe('.buildSequence()', () => {
     test('should build a basic sequence', () => {
       const sequence = buildSequence([
         { argv: ['echo', 'test'], env: {}, execPath: '' },
@@ -616,5 +616,5 @@ describe('CommandParser.ts', () => {
       expect(_2).toEqual({ argv: ['||'], env: {}, execPath: '' })
       expect((p3 as Array<ProcessOptions>).length).toBe(1)
     })
-  })
+  }) */
 })

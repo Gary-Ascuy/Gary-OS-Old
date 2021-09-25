@@ -33,7 +33,7 @@ export enum Operator { OR = '||', AND = '&&', NOT = '!' }
 export type Task = ProcessOptions
 export type Pipeline = Array<Task>
 export type LogicalPipeline = Array<Pipeline | Operator>
-export type BackgroundTask = Array<LogicalPipeline>
+export type ParallelPipeline = Array<LogicalPipeline>
 
 export interface Process extends ProcessOptions {
   /**

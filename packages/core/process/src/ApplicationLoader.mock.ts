@@ -22,7 +22,9 @@ export class MockApplicationLoader extends ApplicationLoader {
     this.install(this.uppercase())
     this.install(this.lowercase())
     this.install(this.removeLast())
+
     this.install(this.grep())
+    this.install(this.sleep())
   }
 
   install(application: Application) {
@@ -166,6 +168,15 @@ export class MockApplicationLoader extends ApplicationLoader {
       return AppicationMainResponse.SUCCESS
     }
     return { ...this.metadata('com.garyos.grep'), main }
+  }
+
+  sleep(): Application {
+    const main = async ({ process: { argv } }: ApplicationContext) => {
+      const [_, time] = argv
+      await new Promise((resolve) => setTimeout(resolve, +time))
+      return AppicationMainResponse.SUCCESS
+    }
+    return { ...this.metadata('com.garyos.sleep'), main }
   }
 
   parse(args: string[], alias: { [key: string]: string }): { [key: string]: string } {

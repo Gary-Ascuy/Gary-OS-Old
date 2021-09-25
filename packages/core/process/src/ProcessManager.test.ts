@@ -1,4 +1,4 @@
-import { AppicationMainResponse, EnvironmentVariables, LogicalPipeline, Operator, Pipeline, ProcessOptions, Task } from './models'
+import { AppicationMainResponse, EnvironmentVariables, LogicalPipeline, Operator, ParallelPipeline, Pipeline, ProcessOptions, Task } from './models'
 import { ProcessManager } from './ProcessManager'
 
 import { MockApplicationLoader, MockStream } from './ApplicationLoader.mock'
@@ -102,6 +102,17 @@ describe('ProcessManager.ts', () => {
       const execution = pm.pipeline(pipeline, io, env)
 
       expect(io.getStdOut()).resolves.toBe('gary')
+      return expect(execution).resolves.toBe(AppicationMainResponse.SUCCESS)
+    })
+
+    test('should run a many echo pipeline', async () => {
+      const pipeline: Pipeline = [
+        { argv: ['echo', 'gary'], env: {}, execPath: '' },
+        { argv: ['echo', 'info'], env: {}, execPath: '' },
+      ]
+      const execution = pm.pipeline(pipeline, io, env)
+
+      expect(io.getStdOut()).resolves.toBe('info')
       return expect(execution).resolves.toBe(AppicationMainResponse.SUCCESS)
     })
 
@@ -272,5 +283,34 @@ describe('ProcessManager.ts', () => {
       const execution = pm.logical(logical, io, env)
       return expect(execution).resolves.toBe(AppicationMainResponse.FAILURE)
     })
+  })
+
+  describe.skip('.parallel()', () => {
+    // let io: MockStream
+
+    // const WAIT: Pipeline = [{ argv: ['sleep', '100'], env: {}, execPath: '' }]
+    // const P1: Pipeline = [{ argv: ['echo', 'P1'], env: {}, execPath: '' }]
+    // const P2: Pipeline = [{ argv: ['echo', 'P2'], env: {}, execPath: '' }]
+
+    // beforeEach(() => {
+    //   pm = new ProcessManager(new MockApplicationLoader(), {})
+    //   env = { USER: 'gary', HOME: '/root/gary/' }
+    //   io = new MockStream([''])
+    //   io.init()
+    // })
+
+    // test('should run in parallel 2 pipelines', () => {
+    //   const parallel: ParallelPipeline = [
+    //     [WAIT, WAIT, P1],
+    //     [P2, WAIT, WAIT],
+    //   ]
+
+    //   const execution = pm.parallel(parallel, io, env)
+
+    //   expect(io.getStdOut()).resolves.toBe('P2')
+    //   return expect(execution).resolves.toBe(AppicationMainResponse.SUCCESS)
+
+    // })
+
   })
 })
