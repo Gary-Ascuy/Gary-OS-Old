@@ -1,6 +1,6 @@
-import { MemoryFile } from './core/memory-filesystem/MemoryFile'
+import { VirtualFileKind } from '@garyos/kernel'
+import { MemoryFile } from './drivers/memory-filesystem/MemoryFile'
 import { addTags, isDirectory, isFile } from './main'
-import { VirtualFileKind } from './models/VirtualFileKind'
 
 describe('main.ts', () => {
   let uuid = 'd7b3d41a-5cc4-432a-a924-b70dd0dff42f'

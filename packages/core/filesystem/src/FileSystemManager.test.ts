@@ -1,8 +1,8 @@
+import { VirtualFileSystem } from '@garyos/kernel'
 import { ReadableStream } from 'web-streams-polyfill'
-import { LocalStorageFileSystem } from './core/localstorage-filesystem/LocalStorageFileSystem'
-import { MemoryFileSystem } from './core/memory-filesystem/MemoryFileSystem'
+import { LocalStorageFileSystem } from './drivers/localstorage-filesystem/LocalStorageFileSystem'
+import { MemoryFileSystem } from './drivers/memory-filesystem/MemoryFileSystem'
 import { FileSystemManager } from './FileSystemManager'
-import { VirtualFileSystem } from './models/VirtualFileSystem'
 
 describe('FileSystemManager.ts', () => {
   let manager: FileSystemManager
@@ -68,7 +68,7 @@ async function createFile(fs: VirtualFileSystem, path: string): Promise<void> {
   await writer.write('FirstLine\n')
   await writer.write('SecondLine\n')
   await writer.close()
-  expect(await fs.readAllContent(path)).toBe('FirstLine\nSecondLine\n')
+  expect(await fs.readFile(path)).toBe('FirstLine\nSecondLine\n')
 }
 
 describe.each([
@@ -105,7 +105,7 @@ describe.each([
       await writer.write('FirstLine\n')
       await writer.write('SecondLine\n')
       await writer.close()
-      expect(await fs.readAllContent(path)).toBe('FirstLine\nSecondLine\n')
+      expect(await fs.readFile(path)).toBe('FirstLine\nSecondLine\n')
     })
 
     test('should open a file in append mode', async () => {
@@ -118,7 +118,7 @@ describe.each([
       await writer.write('FirstLine\n')
       await writer.write('SecondLine\n')
       await writer.close()
-      expect(await fs.readAllContent(path)).toBe('FirstLine\nSecondLine\n')
+      expect(await fs.readFile(path)).toBe('FirstLine\nSecondLine\n')
     })
 
     test('should open a file in append mode and append content', async () => {
@@ -131,7 +131,7 @@ describe.each([
       await writer.write('FirstLine\n')
       await writer.write('SecondLine\n')
       await writer.close()
-      expect(await fs.readAllContent(path)).toBe('FirstLine\nSecondLine\n')
+      expect(await fs.readFile(path)).toBe('FirstLine\nSecondLine\n')
 
       let appendFile = await fs.open(path, 'a') as WritableStream
       expect(appendFile).toBeDefined()
@@ -141,7 +141,7 @@ describe.each([
 
       await appendWriter.write('LastLine\n')
       await appendWriter.close()
-      expect(await fs.readAllContent(path)).toBe('FirstLine\nSecondLine\nLastLine\n')
+      expect(await fs.readFile(path)).toBe('FirstLine\nSecondLine\nLastLine\n')
     })
 
     test('should open a file in append mode and append content', async () => {
@@ -155,7 +155,7 @@ describe.each([
 
       await appendWriter.write('LastLine\n')
       await appendWriter.close()
-      expect(await fs.readAllContent(path)).toBe('FirstLine\nSecondLine\nLastLine\n')
+      expect(await fs.readFile(path)).toBe('FirstLine\nSecondLine\nLastLine\n')
     })
 
     test('should open a file in read mode and get all the content', async () => {
@@ -235,12 +235,12 @@ describe.each([
 
     test('should remove a file', async () => {
       await fs.remove(path)
-      expect(await fs.readAllContent(path)).toBe(null)
+      expect(await fs.readFile(path)).toBe(null)
     })
 
     test('should thrown an error trying to remove a deleted file', async () => {
       await fs.remove(path)
-      expect(await fs.readAllContent(path)).toBe(null)
+      expect(await fs.readFile(path)).toBe(null)
 
       expect(fs.remove(path)).rejects.toThrowError()
     })

@@ -1,9 +1,5 @@
+import { BaseFileSystem, FileStream, VirtualFile } from '@garyos/kernel'
 import { Octokit } from '@octokit/rest'
-import { pick } from 'lodash'
-
-import { VirtualFileSystem } from '../../main'
-import { VirtualFile } from '../../models/VirtualFile'
-import { FileStream } from '../../models/VirtualFileSystem'
 
 /**
  * mount /root/gary-ascuy/ -d github -p username:gary-ascuy -p public-only -p map:branches
@@ -31,7 +27,7 @@ import { FileStream } from '../../models/VirtualFileSystem'
  *    - 'CertiCovidSite'
  *    - 'ci-as-code'
  */
-export class GitHubFileSystem extends VirtualFileSystem {
+export class GitHubFileSystem extends BaseFileSystem {
   constructor(
     public username: string = 'Gary-Ascuy',
     public octokit: Octokit = new Octokit({

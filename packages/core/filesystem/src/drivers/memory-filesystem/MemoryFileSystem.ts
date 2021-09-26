@@ -1,15 +1,16 @@
 import { v4 as uuid } from 'uuid'
+import { BaseFileSystem, FileStream, VirtualFile } from '@garyos/kernel'
 import { WritableStream, ReadableStream } from 'web-streams-polyfill'
 import isString from 'lodash/isString'
 
 import { MemoryDisk } from './MemoryDisk'
 import { MemoryFile } from './MemoryFile'
 
-import { FileStream, VirtualFileSystem } from '../../models/VirtualFileSystem'
-import { VirtualFile } from '../../models/VirtualFile'
-import { FileDoesNotExistError, FileOpenInOtherProcessError, InvalidFileModeError } from '../../errors'
+import { FileOpenInOtherProcessError } from '../../errors/FileOpenInOtherProcessError'
+import { InvalidFileModeError } from '../../errors/InvalidFileModeError'
+import { FileDoesNotExistError } from '../../errors/FileDoesNotExistError'
 
-export class MemoryFileSystem extends VirtualFileSystem {
+export class MemoryFileSystem extends BaseFileSystem {
   private _disk: MemoryDisk = { index: {}, data: {} }
 
   async mount(): Promise<void> {

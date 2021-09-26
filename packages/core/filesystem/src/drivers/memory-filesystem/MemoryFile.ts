@@ -1,10 +1,10 @@
-import { VirtualFile } from '../../models/VirtualFile'
-import { VirtualFileKind } from '../../models/VirtualFileKind'
+import { VirtualFile, VirtualFileKind } from "@garyos/kernel";
 
-export class LocalStorageFile implements VirtualFile {
+export class MemoryFile implements VirtualFile {
   public lock: boolean = false
 
   constructor(
+    public uuid: string,
     public path: string,
     public kind: VirtualFileKind = 0,
     public tags: string[] = [],

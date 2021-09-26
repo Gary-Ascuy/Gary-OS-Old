@@ -1,13 +1,13 @@
+import { BaseFileSystem, FileStream, VirtualFile } from '@garyos/kernel'
 import isString from 'lodash/isString'
 import { WritableStream, ReadableStream } from 'web-streams-polyfill'
+import { FileDoesNotExistError } from '../../errors/FileDoesNotExistError'
+import { FileOpenInOtherProcessError } from '../../errors/FileOpenInOtherProcessError'
+import { InvalidFileModeError } from '../../errors/InvalidFileModeError'
 
 import { LocalStorageFile } from './LocalStorageFile'
 
-import { VirtualFile } from '../../models/VirtualFile'
-import { FileStream, VirtualFileSystem } from '../../models/VirtualFileSystem'
-import { FileDoesNotExistError, FileOpenInOtherProcessError, InvalidFileModeError } from '../../errors'
-
-export class LocalStorageFileSystem extends VirtualFileSystem {
+export class LocalStorageFileSystem extends BaseFileSystem {
   constructor(
     public namespace: string = 'fs',
     public index: { [key: string]: LocalStorageFile } = {},

@@ -1,9 +1,8 @@
+import { BaseFileSystem, FileStream, VirtualFile, VirtualFileSystem } from '@garyos/kernel'
 import isString from 'lodash/isString'
 import startsWith from 'lodash/startsWith'
 
-import { BaseFileSystem, FileStream, VirtualFile, VirtualFileSystem } from '@garyos/kernel'
-
-import { MemoryFileSystem } from './core/memory-filesystem/MemoryFileSystem'
+import { MemoryFileSystem } from './drivers/memory-filesystem/MemoryFileSystem'
 
 export class FileSystemManager extends BaseFileSystem {
   constructor(
@@ -24,7 +23,8 @@ export class FileSystemManager extends BaseFileSystem {
   }
 
   async mount(): Promise<void> {
-    this.install('/', new MemoryFileSystem()) // adding root '/' (default)
+    // adding root '/' (default)
+    this.install('/', new MemoryFileSystem())
   }
 
   async unmount(): Promise<void> {

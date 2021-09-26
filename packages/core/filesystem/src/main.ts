@@ -1,19 +1,12 @@
+import { VirtualFile, VirtualFileKind } from '@garyos/kernel'
 import concat from 'lodash/concat'
+
 import { InvalidFileReferenceError } from './errors/InvalidFileReferenceError'
 
-import { VirtualFile } from './models/VirtualFile'
-import { VirtualFileKind } from './models/VirtualFileKind'
-
-export * from './models/VirtualFile'
-export * from './models/VirtualFileKind'
-export * from './models/VirtualFileSystem'
-
-export * as errors from './errors'
-
 export * from './FileSystemManager'
-export * as memory from './core/memory-filesystem'
-export * as localstorage from './core/localstorage-filesystem'
-export * as github from './core/github-filesystem'
+export * as memory from './drivers/memory-filesystem'
+export * as localstorage from './drivers/localstorage-filesystem'
+export * as github from './drivers/github-filesystem'
 
 function checkFile(file: VirtualFile) {
   if (!file) throw new InvalidFileReferenceError()
