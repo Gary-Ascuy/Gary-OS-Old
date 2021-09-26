@@ -15,7 +15,7 @@ async function createFile(fs: MemoryFileSystem, path: string): Promise<void> {
   expect(await fs.readAllContent(path)).toBe('FirstLine\nSecondLine\n')
 }
 
-describe.only('MemoryFileSystem.ts', () => {
+describe('MemoryFileSystem.ts', () => {
   describe('.open()', () => {
     let fs: MemoryFileSystem
     const path = '/root/logs.txt'

@@ -235,12 +235,13 @@ describe.each([
 
     test('should remove a file', async () => {
       await fs.remove(path)
-      expect(await fs.readFile(path)).toBe(null)
+
+      expect(fs.readFile(path)).rejects.toThrowError()
     })
 
     test('should thrown an error trying to remove a deleted file', async () => {
       await fs.remove(path)
-      expect(await fs.readFile(path)).toBe(null)
+      expect(fs.readFile(path)).rejects.toThrowError()
 
       expect(fs.remove(path)).rejects.toThrowError()
     })
