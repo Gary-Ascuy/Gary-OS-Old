@@ -1378,31 +1378,6 @@ base64-js@^1.0.2:
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
 
-"bash-parser@file:../../bash-parser":
-  version "0.5.1"
-  dependencies:
-    array-last "^1.1.1"
-    babylon "^6.9.1"
-    compose-function "^3.0.3"
-    curry "^1.2.0"
-    deep-freeze "0.0.1"
-    filter-iterator "0.0.1"
-    filter-obj "^1.1.0"
-    has-own-property "^0.1.0"
-    identity-function "^1.0.0"
-    iterable-lookahead "^1.0.0"
-    iterable-transform-replace "^1.1.1"
-    magic-string "^0.16.0"
-    map-iterable "^1.0.1"
-    map-obj "^2.0.0"
-    object-pairs "^0.1.0"
-    object-values "^1.0.0"
-    reverse-arguments "^1.0.0"
-    shell-quote-word "^1.0.1"
-    to-pascal-case "^1.0.0"
-    transform-spread-iterable "^1.1.0"
-    unescape-js "^1.0.5"
-
 before-after-hook@^2.2.0:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/before-after-hook/-/before-after-hook-2.2.2.tgz#a6e8ca41028d90ee2c24222f201c90956091613e"
