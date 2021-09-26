@@ -3,17 +3,19 @@ import { TransformStream } from 'web-streams-polyfill'
 import {
   StringWritableStream, StringReadableStream, StringTransformStream, StandardStreamCreator,
   EnvironmentVariables, StandardStream, AppicationMainResponse,
-  LogicalPipeline, LogicalOperator, ParallelPipeline, Pipeline, Process, Task,
+  LogicalPipeline, LogicalOperator, ParallelPipeline, Pipeline, Process, Task, BaseProcessManager,
 } from '@garyos/kernel'
 
 import { ApplicationLoader } from '../loader/ApplicationLoader'
-import { parse, replaceEnvVariables } from '../parser/CommandParser'
+import { parse, replaceEnvVariables } from '../parser.deprecated/CommandParser'
 
-export class ProcessManager {
+export class ProcessManager extends BaseProcessManager {
   constructor(
     public loader: ApplicationLoader,
     public map: { [key: string]: Process } = {},
-  ) { }
+  ) {
+    super()
+  }
 
   async execute(task: Task, io: StandardStream, system: EnvironmentVariables): Promise<number> {
     try {
