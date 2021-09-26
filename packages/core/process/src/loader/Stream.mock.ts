@@ -1,14 +1,14 @@
-import { TransformStream, ReadableStream, WritableStream } from 'web-streams-polyfill';
-import { StandardStream } from '@garyos/kernel';
+import { TransformStream, ReadableStream } from 'web-streams-polyfill';
+import { StandardStream, StringReadableStream, StringWritableStream, StringTransformStream} from '@garyos/kernel';
 
 export class MockStream implements StandardStream {
-  public _stdin: TransformStream = new TransformStream();
-  public _stdout: TransformStream = new TransformStream();
-  public _stderr: TransformStream = new TransformStream();
+  public _stdin: StringTransformStream = new TransformStream<string>();
+  public _stdout: StringTransformStream = new TransformStream<string>();
+  public _stderr: StringTransformStream = new TransformStream<string>();
 
-  public stdin: ReadableStream;
-  public stdout: WritableStream;
-  public stderr: WritableStream;
+  public stdin: StringReadableStream;
+  public stdout: StringWritableStream;
+  public stderr: StringWritableStream;
 
   constructor(
     private inputChunks: string[]
@@ -40,14 +40,14 @@ export class MockStream implements StandardStream {
     return chunks.join('');
   }
 
-  async getReadableChunks(readable: ReadableStream): Promise<string[]> {
+  async getReadableChunks(readable: ReadableStream<string>): Promise<string[]> {
     const reader = readable.getReader();
 
     let chunks: string[] = [];
     let done;
     do {
       const chunk = await reader.read();
-      chunks.push(chunk.value);
+      if (chunk.value) chunks.push(chunk.value);
       done = chunk.done;
     } while (!done);
 

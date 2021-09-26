@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid'
 import { TransformStream } from 'web-streams-polyfill'
 import {
-  StringWritableStream, StringReadableStream, StringTransformStream, StandardStreamFactory,
+  StringWritableStream, StringReadableStream, StringTransformStream, StandardStreamCreator,
   EnvironmentVariables, StandardStream, AppicationMainResponse,
   LogicalPipeline, LogicalOperator, ParallelPipeline, Pipeline, Process, Task,
 } from '@garyos/kernel'
@@ -18,7 +18,7 @@ export class ProcessManager {
   async execute(task: Task, io: StandardStream, system: EnvironmentVariables): Promise<number> {
     try {
       const [identifier, ...args] = task.argv
-      const application = this.loader.get(identifier)
+      const application = await this.loader.get(identifier)
 
       // env variables
       const env = { ...system, ...task.env }
@@ -135,7 +135,7 @@ export class ProcessManager {
     return code
   }
 
-  async parallel(pipeline: ParallelPipeline, io: StandardStreamFactory, system: EnvironmentVariables): Promise<number> {
+  async parallel(pipeline: ParallelPipeline, io: StandardStreamCreator, system: EnvironmentVariables): Promise<number> {
     if (pipeline && pipeline.length === 0) throw new Error('Invalid Parallel Pipeline')
     const background = [...pipeline]
     const main = background.pop()

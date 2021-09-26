@@ -2,10 +2,10 @@ import { Application, AppicationMainResponse, ApplicationContext, ApplicationTyp
 
 import { ApplicationLoader } from './ApplicationLoader'
 
-export class MockApplicationLoader extends ApplicationLoader {
-  constructor() {
-    super()
-
+export class MockApplicationLoader implements ApplicationLoader {
+  constructor(
+    public apps: { [key: string]: Application } = {}
+  ) {
     this.init()
   }
 
@@ -23,6 +23,12 @@ export class MockApplicationLoader extends ApplicationLoader {
 
     this.install(this.grep())
     this.install(this.sleep())
+  }
+
+  async get(identifier: string): Promise<Application> {
+    if (!this.apps[identifier]) throw new Error('Error: Unable to load Application')
+
+    return this.apps[identifier]
   }
 
   install(application: Application) {

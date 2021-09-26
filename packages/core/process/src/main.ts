@@ -1,3 +1,3 @@
 export * from './core/ProcessManager'
 export * from './parser/CommandParser'
-export * from './loader/ApplicationLoader'
+export * from './loader/ApplicationLoaderManager'
