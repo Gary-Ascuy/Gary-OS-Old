@@ -47,7 +47,7 @@ export class ProcessManager extends BaseProcessManager {
     for (const command of ast.commands) {
       console.log('before')
       const task = buildCommand(command, system.PWD)
-      const process = executeAndFlush(this.loader, task, io, system)
+      const process = execute(this.loader, task, io, system)
       if (!command.async) await process
       console.log('after')
     }

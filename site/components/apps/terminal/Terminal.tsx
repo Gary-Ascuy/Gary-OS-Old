@@ -6,7 +6,12 @@ import Window from '../../window/Window'
 
 import style from './Terminal.module.css'
 import { parseProcessOptions } from '../../../src/kernel/Utils'
+import { ProcessManager, ApplicationLoader, MockApplicationLoader, MockStream } from '@garyos/process'
+import { VirtualProcessManager } from '@garyos/kernel'
 
+const loader: ApplicationLoader = new MockApplicationLoader()
+const pm: VirtualProcessManager = new ProcessManager(loader)
+const io: MockStream = new MockStream([])
 
 let xlines: string[] = []
 
@@ -94,6 +99,19 @@ export default function Terminal({ title, box }: WindowOption) {
                 return
               }
 
+              const io = new MockStream([''])
+
+              pm.execScript(value, io, {}, {})
+                .then((a) => console.log(a))
+                .catch(e => addLines(`gsh: command not found: ${command}`))
+              io.init()
+              io.getStdOut()
+                .then(output => console.log(`OUTPUT: ${output}`))
+                .catch(a => console.log(a))
+
+              setValue('')
+              return;
+
               const [command] = value.split(' ')
               // addLines(`${PS1} ${value}`, `zsh: command not found: ${command}`)
 
@@ -111,11 +129,11 @@ export default function Terminal({ title, box }: WindowOption) {
                 grep.stderr = getStandardOutput()
               }
 
-              setValue('')
+              // setValue('')
 
-              Promise.all([options, grep].filter(Boolean).map(open))
-                .then((a) => console.log(a))
-                .catch(e => addLines(`zsh: command not found: ${command}`))
+              // Promise.all([options, grep].filter(Boolean).map(open))
+              //   .then((a) => console.log(a))
+              //   .catch(e => addLines(`zsh: command not found: ${command}`))
 
             } else setValue(value)
           }}>
