@@ -48,13 +48,10 @@ export class ProcessManager extends BaseProcessManager {
       console.log('before')
       const task = buildCommand(command, system.PWD)
       const process = execute(this.loader, task, io, system)
-      if (!command.async) await process
+      if (!command.async) return await process
       console.log('after')
     }
 
-    console.log(ast)
-
-    const task = {} as Task
-    return execute(this.loader, task, io, system)
+    return 0
   }
 }

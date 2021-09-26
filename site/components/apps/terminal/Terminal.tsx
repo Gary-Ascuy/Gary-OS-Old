@@ -7,12 +7,15 @@ import Window from '../../window/Window'
 import style from './Terminal.module.css'
 import { parseProcessOptions } from '../../../src/kernel/Utils'
 import { ProcessManager, ApplicationLoader, MockApplicationLoader, MockStream } from '@garyos/process'
-import { VirtualProcessManager } from '@garyos/kernel'
+import { VirtualProcessManager, EnvironmentVariables } from '@garyos/kernel'
 
 const loader: ApplicationLoader = new MockApplicationLoader()
 const pm: VirtualProcessManager = new ProcessManager(loader)
 const io: MockStream = new MockStream([])
-
+const env: EnvironmentVariables = {
+  HOME: '/root/gary',
+  USER: 'gary',
+}
 let xlines: string[] = []
 
 // { process }: TerminalProps extends AppicationProps
@@ -100,14 +103,19 @@ export default function Terminal({ title, box }: WindowOption) {
               }
 
               const io = new MockStream([''])
-
-              pm.execScript(value, io, {}, {})
-                .then((a) => console.log(a))
-                .catch(e => addLines(`gsh: command not found: ${command}`))
               io.init()
+              addLines(`${PS1} ${value}`)
+
+              pm.execScript(value, io, env, {})
+                .then((code) => console.log(`CODE: ${code}`))
+                .catch(e => addLines(`gsh: command not found: ${command}`))
+
               io.getStdOut()
-                .then(output => console.log(`OUTPUT: ${output}`))
-                .catch(a => console.log(a))
+                .then(output => {
+                  console.log(`OUTPUT: ${output}`)
+                  addLines(output)
+                })
+                .catch(error => console.log(`ERROR: ${error}`))
 
               setValue('')
               return;
