@@ -1,11 +1,11 @@
 import isString from 'lodash/isString'
 import startsWith from 'lodash/startsWith'
 
-import { VirtualFile } from './models/VirtualFile'
-import { FileStream, VirtualFileSystem } from './models/VirtualFileSystem'
+import { BaseFileSystem, FileStream, VirtualFile, VirtualFileSystem } from '@garyos/kernel'
+
 import { MemoryFileSystem } from './core/memory-filesystem/MemoryFileSystem'
 
-export class FileSystemManager extends VirtualFileSystem {
+export class FileSystemManager extends BaseFileSystem {
   constructor(
     public map: { [key: string]: VirtualFileSystem } = {}
   ) {
@@ -52,11 +52,6 @@ export class FileSystemManager extends VirtualFileSystem {
   async remove(path: string): Promise<void> {
     const fs = await this.getFileSystem(path)
     return fs.remove(path)
-  }
-
-  async readAllContent(path: string): Promise<string | null> {
-    const fs = await this.getFileSystem(path)
-    return fs.readAllContent(path)
   }
 
   async exist(path: string): Promise<boolean> {
