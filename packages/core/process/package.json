@@ -2,7 +2,7 @@
   "name": "@garyos/process",
   "version": "0.0.2",
   "description": "GaryOS - Process Manager",
-  "main": "lib/main.js",
+  "main": "./lib/main.js",
   "types": "./lib/main.d.ts",
   "scripts": {
     "build": "tsc",
