@@ -18,8 +18,8 @@ describe('ProcessManager.ts', () => {
   })
 
   describe('.exec()', () => {
-    test('should execute an application', () => {
-      const a = pm.execScript('echo gary', io, env, {})
+    test('should execute an application', async () => {
+      const a = await pm.execScript('GARY=true sleep 9000 &', io, env, {})
       expect(1).toBe(1)
     })
   })

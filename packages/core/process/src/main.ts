@@ -1,2 +1,2 @@
-export * from './core/ProcessManager'
+export * from './ProcessManagera'
 export * from './loader/ApplicationLoaderManager'
