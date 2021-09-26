@@ -29,7 +29,7 @@
     "typescript": "^4.4.3"
   },
   "dependencies": {
-    "@garyos/kernel": "./packages/core/kernel",
+    "@garyos/kernel": "../packages/core/kernel",
     "bash-parser": "^0.5.0",
     "react": "^17.0.2",
     "string-argv": "^0.3.1",
