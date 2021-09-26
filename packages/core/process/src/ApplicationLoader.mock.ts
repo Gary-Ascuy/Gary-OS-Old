@@ -1,8 +1,7 @@
-import { TransformStream, ReadableStream, WritableStream, ReadableStreamDefaultReadResult } from 'web-streams-polyfill'
+import { TransformStream, ReadableStream, WritableStream } from 'web-streams-polyfill'
+import { StandardStream, Application, AppicationMainResponse, ApplicationContext, ApplicationType, ApplicationAuthor } from '@garyos/kernel'
 
 import { ApplicationLoader } from './ApplicationLoader'
-import { AppicationMainResponse, Application, ApplicationAuthor, ApplicationContext, ApplicationType } from './models'
-import { IOStream } from './models/IOStream'
 
 export class MockApplicationLoader extends ApplicationLoader {
   constructor() {
@@ -209,7 +208,7 @@ export class MockApplicationLoader extends ApplicationLoader {
   }
 }
 
-export class MockStream implements IOStream {
+export class MockStream implements StandardStream {
   public _stdin: TransformStream = new TransformStream()
   public _stdout: TransformStream = new TransformStream()
   public _stderr: TransformStream = new TransformStream()
