@@ -1,2 +1,2 @@
 export * from './ProcessManager'
-export * from './CommandParser'
+export * from './parser/CommandParser'

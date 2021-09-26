@@ -1,7 +1,8 @@
-import { ReadableStream, WritableStream } from 'web-streams-polyfill'
+import { ReadableStream, WritableStream, TransformStream } from 'web-streams-polyfill'
 
 export type StringReadableStream = ReadableStream<string>
 export type StringWritableStream = WritableStream<string>
+export type StringTransformStream = TransformStream<string>
 
 export type StreamFactory<T> = () => T
 export type ReadableStreamFactory = StreamFactory<ReadableStream>

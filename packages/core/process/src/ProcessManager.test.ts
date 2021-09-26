@@ -1,7 +1,8 @@
-import { AppicationMainResponse, EnvironmentVariables, LogicalPipeline, Operator, ParallelPipeline, Pipeline, ProcessOptions, Task } from './models'
+import { AppicationMainResponse, EnvironmentVariables, LogicalPipeline, LogicalOperator, Pipeline, Task } from '@garyos/kernel'
+
 import { ProcessManager } from './ProcessManager'
 
-import { MockApplicationLoader, MockStream } from './ApplicationLoader.mock'
+import { MockApplicationLoader, MockStream } from './loader/ApplicationLoader.mock'
 
 describe('ProcessManager.ts', () => {
   let pm: ProcessManager
@@ -249,7 +250,7 @@ describe('ProcessManager.ts', () => {
       ['FALSE AND TRUE  = FALSE', FALSE, TRUE, AppicationMainResponse.FAILURE],
       ['FALSE AND FALSE = FALSE', FALSE, FALSE, AppicationMainResponse.FAILURE],
     ])('should evaluate "%s" expression', (name: string, a: Pipeline, b: Pipeline, result: AppicationMainResponse) => {
-      const logical: LogicalPipeline = [a, Operator.AND, b]
+      const logical: LogicalPipeline = [a, LogicalOperator.AND, b]
 
       const execution = pm.logical(logical, io, env)
       return expect(execution).resolves.toBe(result)
@@ -262,7 +263,7 @@ describe('ProcessManager.ts', () => {
       ['FALSE OR TRUE  = TRUE', FALSE, TRUE, AppicationMainResponse.SUCCESS],
       ['FALSE OR FALSE = FALSE', FALSE, FALSE, AppicationMainResponse.FAILURE],
     ])('should evaluate "%s" expression', (name: string, a: Pipeline, b: Pipeline, result: AppicationMainResponse) => {
-      const logical: LogicalPipeline = [a, Operator.OR, b]
+      const logical: LogicalPipeline = [a, LogicalOperator.OR, b]
 
       const execution = pm.logical(logical, io, env)
       return expect(execution).resolves.toBe(result)
@@ -271,7 +272,7 @@ describe('ProcessManager.ts', () => {
     test('should evaluate OR in lazy mode "TRUE || CRASH = TRUE"', () => {
       const crash = [{ argv: ['nonExistentApplication'], env: {}, execPath: '' }]
 
-      const logical: LogicalPipeline = [TRUE, Operator.OR, crash]
+      const logical: LogicalPipeline = [TRUE, LogicalOperator.OR, crash]
       const execution = pm.logical(logical, io, env)
       return expect(execution).resolves.toBe(AppicationMainResponse.SUCCESS)
     })
@@ -279,7 +280,7 @@ describe('ProcessManager.ts', () => {
     test('should evaluate AND in lazy mode "FALSE && CRASH = FALSE"', () => {
       const crash = [{ argv: ['nonExistentApplication'], env: {}, execPath: '' }]
 
-      const logical: LogicalPipeline = [FALSE, Operator.AND, crash]
+      const logical: LogicalPipeline = [FALSE, LogicalOperator.AND, crash]
       const execution = pm.logical(logical, io, env)
       return expect(execution).resolves.toBe(AppicationMainResponse.FAILURE)
     })

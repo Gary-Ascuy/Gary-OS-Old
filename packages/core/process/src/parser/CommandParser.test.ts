@@ -1,5 +1,4 @@
 import { buildProcessOptions, checkSequence, parse, replaceEnvVariables, replaceInputOutputRedirection } from './CommandParser'
-// import { ProcessOptions } from './models'
 
 describe('CommandParser.ts', () => {
   describe('.replaceEnvVariables()', () => {

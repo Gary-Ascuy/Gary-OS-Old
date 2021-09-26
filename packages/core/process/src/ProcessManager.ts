@@ -1,11 +1,9 @@
 import { v4 as uuid } from 'uuid'
 import { TransformStream, ReadableStream, WritableStream } from 'web-streams-polyfill'
+import { AppicationMainResponse, StringWritableStream, StringReadableStream, StringTransformStream, EnvironmentVariables, StandardStream, LogicalPipeline, LogicalOperator, ParallelPipeline, Pipeline, Process, Task } from '@garyos/kernel'
 
-import { ApplicationLoader } from './ApplicationLoader'
-import { parse, replaceEnvVariables } from './CommandParser'
-import { AppicationMainResponse, EnvironmentVariables, LogicalPipeline, Operator, ParallelPipeline, Pipeline, Process, Task } from './models'
-import { IOStream } from './models/IOStream'
-// import { ParallelWritableStream } from './ParallelWritableStream'
+import { ApplicationLoader } from './loader/ApplicationLoader'
+import { parse, replaceEnvVariables } from './parser/CommandParser'
 
 export class ProcessManager {
   constructor(
@@ -13,7 +11,7 @@ export class ProcessManager {
     public map: { [key: string]: Process } = {},
   ) { }
 
-  async execute(task: Task, streams: IOStream, system: EnvironmentVariables): Promise<number> {
+  async execute(task: Task, streams: StandardStream, system: EnvironmentVariables): Promise<number> {
     try {
       const [identifier, ...args] = task.argv
       const application = this.loader.get(identifier)
@@ -40,14 +38,14 @@ export class ProcessManager {
     }
   }
 
-  async flushWritable(writable: WritableStream): Promise<void> {
+  async flushWritable(writable: StringWritableStream): Promise<void> {
     try {
       const writer = writable.getWriter()
       await writer.close()
     } catch (error) { }
   }
 
-  async flushReadable(readable: ReadableStream): Promise<void> {
+  async flushReadable(readable: StringReadableStream): Promise<void> {
     try {
       const reader = readable.getReader()
       let done
@@ -58,7 +56,7 @@ export class ProcessManager {
     } catch (error) { }
   }
 
-  async executeAndFlush(task: Task, streams: IOStream, system: EnvironmentVariables): Promise<number> {
+  async executeAndFlush(task: Task, streams: StandardStream, system: EnvironmentVariables): Promise<number> {
     const code = await this.execute(task, streams, system)
 
     await this.flushReadable(streams.stdin)
@@ -67,25 +65,25 @@ export class ProcessManager {
     return code
   }
 
-  buildPipelineStreams(pipeline: Pipeline, io: IOStream) {
-    let pipe: TransformStream = new TransformStream()
-    let stdin: ReadableStream = io.stdin
-    const stderr: WritableStream = io.stderr
+  buildPipelineStreams(pipeline: Pipeline, io: StandardStream): StandardStream[] {
+    let pipe: StringTransformStream = new TransformStream<string>()
+    let stdin: StringReadableStream = io.stdin
+    const stderr: StringWritableStream = io.stderr
 
     const length = pipeline.length
     const streams = pipeline.map((_, index: number) => {
       const stdout = index === (length - 1) ? io.stdout : pipe.writable
-      const stream: IOStream = { stderr, stdin, stdout }
+      const stream: StandardStream = { stderr, stdin, stdout }
 
       stdin = pipe.readable
-      pipe = new TransformStream()
+      pipe = new TransformStream<string>()
       return stream
     })
 
     return streams
   }
 
-  async pipeline(pipeline: Pipeline, io: IOStream, system: EnvironmentVariables): Promise<number> {
+  async pipeline(pipeline: Pipeline, io: StandardStream, system: EnvironmentVariables): Promise<number> {
     if (pipeline && pipeline.length === 0) throw new Error('Invalid Pipeline')
 
     const streams = this.buildPipelineStreams(pipeline, io)
@@ -98,7 +96,7 @@ export class ProcessManager {
   }
 
 
-  // async run(command: string, io: IOStream, env: EnvironmentVariables): Promise<number> {
+  // async run(command: string, io: StandardStream, env: EnvironmentVariables): Promise<number> {
   //   const options: ProcessOptions[] = parse(command, env.PWD)
   //   const sequence = buildSequence(options)
   //   // return this.run(sequence)
@@ -107,15 +105,15 @@ export class ProcessManager {
   /**
    * Lazy Expression Evaluation
    *
-   * @example Operator.AND
+   * @example LogicalOperator.AND
    *  - false && X = false => Stop execution
    *  - true  && X = X
    *
-   * @example Operator.OR
+   * @example LogicalOperator.OR
    *  - false || X = X
    *  - true  || X = true => Stop execution
    */
-  async logical(pipelines: LogicalPipeline, io: IOStream, system: EnvironmentVariables) {
+  async logical(pipelines: LogicalPipeline, io: StandardStream, system: EnvironmentVariables) {
     if (pipelines && pipelines.length === 0) throw new Error('Invalid Logical Pipeline')
 
     let code = 0
@@ -126,14 +124,14 @@ export class ProcessManager {
       }
 
       const success = code === AppicationMainResponse.SUCCESS
-      if (!success && pipeline === Operator.AND) return code
-      if (success && pipeline === Operator.OR) return code
+      if (!success && pipeline === LogicalOperator.AND) return code
+      if (success && pipeline === LogicalOperator.OR) return code
     }
 
     return code
   }
 
-  async parallel(pipeline: ParallelPipeline, io: IOStream, system: EnvironmentVariables): Promise<number> {
+  async parallel(pipeline: ParallelPipeline, io: StandardStream, system: EnvironmentVariables): Promise<number> {
     if (pipeline && pipeline.length === 0) throw new Error('Invalid Parallel Pipeline')
     const background = [...pipeline]
     const main = background.pop()

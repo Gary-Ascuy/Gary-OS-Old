@@ -1,4 +1,5 @@
 import { Application } from '../application/Application'
+import { StringReadableStream, StringWritableStream } from '../stream/StandardStream'
 import { Task } from './Task'
 
 export interface Process extends Task {
@@ -12,9 +13,9 @@ export interface Process extends Task {
   /**
    * Streams stdin | stdout | stderr
    */
-  stdin: ReadableStream
-  stdout: WritableStream
-  stderr: WritableStream
+  stdin: StringReadableStream
+  stdout: StringWritableStream
+  stderr: StringWritableStream
 
   /**
    * Base Application for process
