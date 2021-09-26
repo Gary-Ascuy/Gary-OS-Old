@@ -2,11 +2,7 @@ import { ReadableStream, WritableStream, TransformStream } from 'web-streams-pol
 
 export type StringReadableStream = ReadableStream<string>
 export type StringWritableStream = WritableStream<string>
-export type StringTransformStream = TransformStream<string>
-
-export type StreamCreator<T> = () => T
-export type ReadableStreamCreator = StreamCreator<ReadableStream>
-export type WritableStreamCreator = StreamCreator<WritableStream>
+export type StringTransformStream = TransformStream<string, string>
 
 export interface StandardStream {
   stdin: StringReadableStream
@@ -15,7 +11,7 @@ export interface StandardStream {
 }
 
 export interface StandardStreamCreator extends StandardStream {
-  new_stdin: ReadableStreamCreator
-  new_stdout: WritableStreamCreator
-  new_stderr: WritableStreamCreator
+  new_stdin(): Promise<StringReadableStream>
+  new_stdout(): Promise<StringWritableStream>
+  new_stderr(): Promise<StringWritableStream>
 }

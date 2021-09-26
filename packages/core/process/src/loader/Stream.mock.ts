@@ -1,7 +1,10 @@
-import { TransformStream, ReadableStream } from 'web-streams-polyfill';
-import { StandardStream, StringReadableStream, StringWritableStream, StringTransformStream} from '@garyos/kernel';
+import { TransformStream, ReadableStream } from 'web-streams-polyfill'
+import {
+  StringReadableStream, StringWritableStream,
+  StringTransformStream, StandardStreamCreator
+} from '@garyos/kernel'
 
-export class MockStream implements StandardStream {
+export class MockStream implements StandardStreamCreator {
   public _stdin: StringTransformStream = new TransformStream<string>();
   public _stdout: StringTransformStream = new TransformStream<string>();
   public _stderr: StringTransformStream = new TransformStream<string>();
@@ -52,5 +55,17 @@ export class MockStream implements StandardStream {
     } while (!done);
 
     return chunks;
+  }
+
+  async new_stdin(): Promise<StringReadableStream> {
+    return this.stdin
+  }
+
+  async new_stdout(): Promise<StringWritableStream> {
+    return this.stdout
+  }
+
+  async new_stderr(): Promise<StringWritableStream> {
+    return this.stderr
   }
 }
