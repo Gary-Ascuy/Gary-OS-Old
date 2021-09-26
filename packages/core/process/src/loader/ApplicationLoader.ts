@@ -1,4 +1,4 @@
-import { Application } from './models/Application'
+import { Application } from '@garyos/kernel'
 
 export class ApplicationLoader {
   constructor(

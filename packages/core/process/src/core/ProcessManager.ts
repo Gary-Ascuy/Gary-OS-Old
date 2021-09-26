@@ -1,9 +1,13 @@
 import { v4 as uuid } from 'uuid'
-import { TransformStream, ReadableStream, WritableStream } from 'web-streams-polyfill'
-import { AppicationMainResponse, StringWritableStream, StringReadableStream, StringTransformStream, EnvironmentVariables, StandardStream, LogicalPipeline, LogicalOperator, ParallelPipeline, Pipeline, Process, Task } from '@garyos/kernel'
+import { TransformStream } from 'web-streams-polyfill'
+import {
+  StringWritableStream, StringReadableStream, StringTransformStream,
+  EnvironmentVariables, StandardStream, AppicationMainResponse,
+  LogicalPipeline, LogicalOperator, ParallelPipeline, Pipeline, Process, Task,
+} from '@garyos/kernel'
 
-import { ApplicationLoader } from './loader/ApplicationLoader'
-import { parse, replaceEnvVariables } from './parser/CommandParser'
+import { ApplicationLoader } from '../loader/ApplicationLoader'
+import { parse, replaceEnvVariables } from '../parser/CommandParser'
 
 export class ProcessManager {
   constructor(

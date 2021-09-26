@@ -1,7 +1,6 @@
 import stringArgv from 'string-argv'
 
-import { EnvironmentVariables } from './models/EnvironmentVariables'
-import { ProcessOptions } from './models/Process'
+import { Task, Pipeline, EnvironmentVariables } from '@garyos/kernel'
 
 export const PIPE_OPERATORS = ['|', '||', '&', '&&']
 
@@ -31,7 +30,7 @@ export function replaceEnvVariables(input: string, env: EnvironmentVariables) {
   return matches
 }
 
-export function buildProcessOptions(argvs: string[], pwd: string = ''): ProcessOptions {
+export function buildProcessOptions(argvs: string[], pwd: string = ''): Task {
   const env: EnvironmentVariables = {}
 
   let [command, ...rest] = argvs
@@ -78,7 +77,7 @@ export function buildProcessOptions(argvs: string[], pwd: string = ''): ProcessO
  * @param lines lines from terminal.
  * @returns a list of ProcessOptions.
  */
-export function parse(lines: string, pwd: string = ''): ProcessOptions[] {
+export function parse(lines: string, pwd: string = ''): Pipeline {
   if (!lines || !lines.trim()) throw new Error('Invalid Command Line')
 
   const argvs = stringArgv(lines.replace(/\\\r?\n/g, ' ').replace(/\r?\n/g, ''))
@@ -106,7 +105,7 @@ export function parse(lines: string, pwd: string = ''): ProcessOptions[] {
   return checkSequence(resolvedOptions)
 }
 
-export function checkSequence(options: ProcessOptions[]): ProcessOptions[] {
+export function checkSequence(options: Pipeline): Pipeline {
   if (!options || options.length === 0) throw new Error('Invalid Pipeline Sequence')
 
   let index = 0
@@ -139,9 +138,9 @@ export function checkSequence(options: ProcessOptions[]): ProcessOptions[] {
  * @param options list of commands
  * @returns list of commands
  */
-export function replaceInputOutputRedirection(options: ProcessOptions[]) {
-  const results: ProcessOptions[] = []
-  let prev: ProcessOptions | undefined = undefined
+export function replaceInputOutputRedirection(options: Pipeline) {
+  const results: Pipeline = []
+  let prev: Task | undefined = undefined
 
   for (const option of options) {
     const [cmd, file] = option.argv

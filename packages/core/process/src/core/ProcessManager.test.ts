@@ -2,7 +2,8 @@ import { AppicationMainResponse, EnvironmentVariables, LogicalPipeline, LogicalO
 
 import { ProcessManager } from './ProcessManager'
 
-import { MockApplicationLoader, MockStream } from './loader/ApplicationLoader.mock'
+import { MockApplicationLoader } from '../loader/ApplicationLoader.mock'
+import { MockStream } from "../loader/Stream.mock"
 
 describe('ProcessManager.ts', () => {
   let pm: ProcessManager
