@@ -6,8 +6,8 @@ import {
   LogicalPipeline, LogicalOperator, ParallelPipeline, Pipeline, Process, Task, BaseProcessManager,
 } from '@garyos/kernel'
 
-import { ApplicationLoader } from '../loader/ApplicationLoader'
-import { parse, replaceEnvVariables } from '../parser.deprecated/CommandParser'
+import { ApplicationLoader } from './loader/ApplicationLoader'
+import { parse, replaceEnvVariables } from './parser.deprecated/CommandParser'
 
 export class ProcessManager extends BaseProcessManager {
   constructor(
