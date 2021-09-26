@@ -19,8 +19,8 @@ function buildCommand(ast: any, execPath: string): Task {
 
   const { name, suffix, prefix } = ast
 
-  const values = suffix.map(({ text }: any) => text)
-  const assignments = prefix.map(({ text }: any) => text)
+  const values = (suffix ?? []).map(({ text }: any) => text)
+  const assignments = (prefix ?? []).map(({ text }: any) => text)
 
   const env: EnvironmentVariables = {}
   for (const assignment of assignments) {
