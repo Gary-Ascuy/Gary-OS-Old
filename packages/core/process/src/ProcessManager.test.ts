@@ -1,4 +1,4 @@
-import { AppicationMainResponse, EnvironmentVariables, LogicalPipeline, LogicalOperator, Pipeline, Task } from '@garyos/kernel'
+import { EnvironmentVariables } from '@garyos/kernel'
 
 import { ProcessManager } from './ProcessManagera'
 
@@ -19,7 +19,7 @@ describe('ProcessManager.ts', () => {
 
   describe('.exec()', () => {
     test('should execute an application', async () => {
-      const a = await pm.execScript('GARY=true sleep 9000 &', io, env, {})
+      const a = await pm.execScript('GARY=true sleep 10', io, env, {})
       expect(1).toBe(1)
     })
   })
