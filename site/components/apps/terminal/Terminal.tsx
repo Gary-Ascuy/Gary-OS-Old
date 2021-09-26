@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { WindowOption } from '../../../src/view/WindowOption'
 import { useKernel } from '../../../src/kernel/Kernel'
-import { ProcessOptions } from '../../../src/kernel/options/ProcessOptions'
 import Window from '../../window/Window'
 
 import style from './Terminal.module.css'
