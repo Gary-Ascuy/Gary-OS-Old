@@ -54,16 +54,4 @@ export interface Process extends ProcessOptions {
    * Base Application for process
    */
   application: Application
-
-  /**
-  * Event Emitter
-  */
-  // on(name: string, callback: Function): Promise<void>
-  // emit(name: string, ...args: string[]): void
-
-  /**
-   * Process Events
-   */
-  // kill(pid: string, signal: string): Promise<void>
-  // exit(code: number): Promise<void>
 }
