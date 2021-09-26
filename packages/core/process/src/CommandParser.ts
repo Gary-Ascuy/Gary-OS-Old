@@ -127,31 +127,6 @@ export function checkSequence(options: ProcessOptions[]): ProcessOptions[] {
   return options
 }
 
-export type SequenceElement = ProcessOptions[] | ProcessOptions
-
-
-export function buildSequence(options: ProcessOptions[]): SequenceElement[] {
-  const results: SequenceElement[] = []
-  let executionBlock: ProcessOptions[] = []
-
-  for (const option of options) {
-    const [cmd] = option.argv
-
-    const isLogicalOperator = ['||', '&&'].includes(cmd)
-    if (isLogicalOperator) {
-      results.push(executionBlock)
-      results.push(option)
-      executionBlock = []
-      continue
-    }
-
-    executionBlock.push(option)
-  }
-
-  if (executionBlock.length > 0) results.push(executionBlock)
-  return results
-}
-
 /**
  * Resolves Input and Output Redirections
  *
