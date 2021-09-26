@@ -20,6 +20,7 @@
     "access": "public"
   },
   "peerDependencies": {
+    "bash-parser": "^0.5.0",
     "react": "^17.0.2",
     "web-streams-polyfill": "^3.1.1"
   }
