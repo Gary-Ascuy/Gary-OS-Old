@@ -1,5 +1,3 @@
-import { StringTransformStream } from '@garyos/kernel'
-
 export class ParallelReadableStream extends TransformStream<string> {
   constructor(chunks: string[] = []) {
     super();

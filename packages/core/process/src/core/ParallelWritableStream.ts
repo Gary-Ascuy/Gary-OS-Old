@@ -1,17 +1,16 @@
-
 import { WritableStream, UnderlyingSink } from 'web-streams-polyfill'
 
-export class ParallelWritableStream<W = any> extends WritableStream {
+export class ParallelWritableStream extends WritableStream<string> {
   private writer: WritableStreamDefaultWriter
 
-  constructor(underlyingSink?: UnderlyingSink<W>, strategy?: QueuingStrategy<W>) {
+  constructor(underlyingSink?: UnderlyingSink<string>, strategy?: QueuingStrategy<string>) {
     super(underlyingSink, strategy)
 
     this.writer = this.getWriter()
   }
 
   getInstance(): WritableStream {
-    const write = (chunk: any) => { this.writer.write(chunk) }
-    return new WritableStream({ write })
+    const write = (chunk: string) => { this.writer.write(chunk) }
+    return new WritableStream<string>({ write })
   }
 }
