@@ -1,0 +1,27 @@
+{
+  "name": "@garyos/kernel",
+  "version": "0.0.1",
+  "description": "GaryOS - Kernel",
+  "main": "./lib/main.js",
+  "types": "./lib/main.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "prepublish": "yarn build"
+  },
+  "keywords": [
+    "garyos",
+    "gos",
+    "kernel"
+  ],
+  "author": "Gary Ascuy <gary.ascuy@gmail.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@garyos/bash-parser": "^0.5.1",
+    "react": "^17.0.2",
+    "web-streams-polyfill": "^3.1.1"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "@garyos/process",
+  "version": "0.0.2",
+  "description": "GaryOS - Process Manager",
+  "main": "./lib/main.js",
+  "types": "./lib/main.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "prepublish": "yarn build"
+  },
+  "keywords": [
+    "garyos",
+    "gos",
+    "process",
+    "manager"
+  ],
+  "author": "Gary Ascuy <gary.ascuy@gmail.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.1",
+    "@types/react": "^17.0.21",
+    "@types/uuid": "^8.3.1",
+    "jest": "^27.2.0",
+    "ts-jest": "^27.0.5",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "@garyos/kernel": "../packages/core/kernel",
+    "@garyos/bash-parser": "^0.5.1",
+    "react": "^17.0.2",
+    "string-argv": "^0.3.1",
+    "uuid": "^8.3.2",
+    "web-streams-polyfill": "^3.1.1"
+  }
+}

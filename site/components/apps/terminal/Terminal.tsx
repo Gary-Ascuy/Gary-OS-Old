@@ -1,13 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { WindowOption } from '../../../src/view/WindowOption'
 import { useKernel } from '../../../src/kernel/Kernel'
-import { ProcessOptions } from '../../../src/kernel/options/ProcessOptions'
 import Window from '../../window/Window'
 
 import style from './Terminal.module.css'
 import { parseProcessOptions } from '../../../src/kernel/Utils'
+import { ProcessManager, ApplicationLoader, MockApplicationLoader, MockStream } from '@garyos/process'
+import { VirtualProcessManager, EnvironmentVariables } from '@garyos/kernel'
 
-
+const loader: ApplicationLoader = new MockApplicationLoader()
+const pm: VirtualProcessManager = new ProcessManager(loader)
+const io: MockStream = new MockStream([])
+const env: EnvironmentVariables = {
+  HOME: '/root/gary',
+  USER: 'gary',
+}
 let xlines: string[] = []
 
 // { process }: TerminalProps extends AppicationProps
@@ -94,6 +101,24 @@ export default function Terminal({ title, box }: WindowOption) {
                 return
               }
 
+              const io = new MockStream([''])
+              io.init()
+              addLines(`${PS1} ${value}`)
+
+              pm.execScript(value, io, env, {})
+                .then((code) => console.log(`CODE: ${code}`))
+                .catch(e => addLines(`gsh: command not found: ${command}`))
+
+              io.getStdOut()
+                .then(output => {
+                  console.log(`OUTPUT: ${output}`)
+                  addLines(output)
+                })
+                .catch(error => console.log(`ERROR: ${error}`))
+
+              setValue('')
+              return;
+
               const [command] = value.split(' ')
               // addLines(`${PS1} ${value}`, `zsh: command not found: ${command}`)
 
@@ -111,11 +136,11 @@ export default function Terminal({ title, box }: WindowOption) {
                 grep.stderr = getStandardOutput()
               }
 
-              setValue('')
+              // setValue('')
 
-              Promise.all([options, grep].filter(Boolean).map(open))
-                .then((a) => console.log(a))
-                .catch(e => addLines(`zsh: command not found: ${command}`))
+              // Promise.all([options, grep].filter(Boolean).map(open))
+              //   .then((a) => console.log(a))
+              //   .catch(e => addLines(`zsh: command not found: ${command}`))
 
             } else setValue(value)
           }}>
