@@ -1,0 +1,15 @@
+{
+  "name": "@garyos/kernel",
+  "version": "0.0.1",
+  "description": "GaryOS - Kernel",
+  "main": "lib/main.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "garyos",
+    "kernel"
+  ],
+  "author": "Gary Ascuy <gary.ascuy@gmail.com>",
+  "license": "MIT"
+}
