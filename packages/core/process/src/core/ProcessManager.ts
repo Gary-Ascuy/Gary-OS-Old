@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid'
 import { TransformStream } from 'web-streams-polyfill'
 import {
-  StringWritableStream, StringReadableStream, StringTransformStream,
+  StringWritableStream, StringReadableStream, StringTransformStream, StandardStreamFactory,
   EnvironmentVariables, StandardStream, AppicationMainResponse,
   LogicalPipeline, LogicalOperator, ParallelPipeline, Pipeline, Process, Task,
 } from '@garyos/kernel'
@@ -15,7 +15,7 @@ export class ProcessManager {
     public map: { [key: string]: Process } = {},
   ) { }
 
-  async execute(task: Task, streams: StandardStream, system: EnvironmentVariables): Promise<number> {
+  async execute(task: Task, io: StandardStream, system: EnvironmentVariables): Promise<number> {
     try {
       const [identifier, ...args] = task.argv
       const application = this.loader.get(identifier)
@@ -32,7 +32,7 @@ export class ProcessManager {
 
       // process
       const pid = uuid()
-      const process: Process = { ...task, ...streams, pid, application, env, argv }
+      const process: Process = { ...task, ...io, pid, application, env, argv }
       system.DEBUG && console.log(process)
 
       return application.main({ pid, process })
@@ -60,12 +60,12 @@ export class ProcessManager {
     } catch (error) { }
   }
 
-  async executeAndFlush(task: Task, streams: StandardStream, system: EnvironmentVariables): Promise<number> {
-    const code = await this.execute(task, streams, system)
+  async executeAndFlush(task: Task, io: StandardStream, system: EnvironmentVariables): Promise<number> {
+    const code = await this.execute(task, io, system)
 
-    await this.flushReadable(streams.stdin)
-    await this.flushWritable(streams.stdout)
-    await this.flushWritable(streams.stderr)
+    await this.flushReadable(io.stdin)
+    await this.flushWritable(io.stdout)
+    await this.flushWritable(io.stderr)
     return code
   }
 
@@ -135,10 +135,11 @@ export class ProcessManager {
     return code
   }
 
-  async parallel(pipeline: ParallelPipeline, io: StandardStream, system: EnvironmentVariables): Promise<number> {
+  async parallel(pipeline: ParallelPipeline, io: StandardStreamFactory, system: EnvironmentVariables): Promise<number> {
     if (pipeline && pipeline.length === 0) throw new Error('Invalid Parallel Pipeline')
     const background = [...pipeline]
     const main = background.pop()
+    io.new_stdout()
 
     // const parallel = new ParallelWritableStream(io.stdout)
     // if (background.length > 0) {

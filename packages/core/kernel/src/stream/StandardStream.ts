@@ -4,9 +4,9 @@ export type StringReadableStream = ReadableStream<string>
 export type StringWritableStream = WritableStream<string>
 export type StringTransformStream = TransformStream<string>
 
-export type StreamFactory<T> = () => T
-export type ReadableStreamFactory = StreamFactory<ReadableStream>
-export type WritableStreamFactory = StreamFactory<WritableStream>
+export type StreamCreator<T> = () => T
+export type ReadableStreamCreator = StreamCreator<ReadableStream>
+export type WritableStreamCreator = StreamCreator<WritableStream>
 
 export interface StandardStream {
   stdin: StringReadableStream
@@ -14,8 +14,8 @@ export interface StandardStream {
   stderr: StringWritableStream
 }
 
-export interface StandardStreamFactory extends StandardStream {
-  new_stdin: ReadableStreamFactory
-  new_stdout: WritableStreamFactory
-  new_stderr: WritableStreamFactory
+export interface StandardStreamCreator extends StandardStream {
+  new_stdin: ReadableStreamCreator
+  new_stdout: WritableStreamCreator
+  new_stderr: WritableStreamCreator
 }
