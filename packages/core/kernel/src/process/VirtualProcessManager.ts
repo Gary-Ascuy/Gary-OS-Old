@@ -1,4 +1,4 @@
-import bashParse, { AstScript, BashParserOptions } from 'bash-parser'
+import bashParse, { AstScript, BashParserOptions } from '@garyos/bash-parser'
 
 import { StandardStreamCreator } from '../stream/StandardStream'
 import { EnvironmentVariables } from './EnvironmentVariables'

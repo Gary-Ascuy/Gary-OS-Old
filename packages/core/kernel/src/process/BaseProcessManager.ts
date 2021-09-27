@@ -1,4 +1,4 @@
-import { AstScript, BashParserOptions } from 'bash-parser'
+import { AstScript, BashParserOptions } from '@garyos/bash-parser'
 import { StandardStreamCreator } from '../stream/StandardStream'
 import { EnvironmentVariables } from './EnvironmentVariables'
 import { VirtualProcessManager, parseScript } from './VirtualProcessManager'

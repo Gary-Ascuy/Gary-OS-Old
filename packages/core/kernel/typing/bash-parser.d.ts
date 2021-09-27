@@ -1,4 +1,4 @@
-declare module 'bash-parser' {
+declare module '@garyos/bash-parser' {
   export interface BashParserOptions {
     insertLOC?: boolean
     resolveAlias?: (name: string) => string
